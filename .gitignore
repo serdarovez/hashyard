@@ -1,0 +1,15 @@
+# Dependencies are installed fresh on each machine. Committing them ships
+# platform-specific binaries: esbuild installed on Windows only contains
+# @esbuild/win32-x64, which is exactly what broke the Linux build on Vercel.
+node_modules/
+
+# Build output - Vercel runs `vite build` itself.
+dist/
+hashyard-site.html
+
+# Local tooling
+.vercel
+.DS_Store
+*.log
+_patch.py
+_css.py
