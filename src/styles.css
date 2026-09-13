@@ -187,7 +187,7 @@ select, button { font-family: inherit; }
 }
 .site-nav button:hover { color: var(--ink); background: var(--panel-2); }
 .site-nav button[aria-current="page"] { color: var(--accent-lift); background: var(--accent-dim); }
-.header-right { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .balance-chip {
   display: flex; flex-direction: column; align-items: flex-end; gap: 0;
   background: var(--card); border: 1px solid var(--line-2); border-radius: 11px;
@@ -486,11 +486,42 @@ select, button { font-family: inherit; }
   .detail-side { position: static; }
   .specs.four { grid-template-columns: repeat(2, 1fr); }
 }
+/* ---------- mobile tab bar ----------
+   Hidden on wide screens, where the header links do this job. */
+.mobile-nav { display: none; }
+
 @media (max-width: 720px) {
   .site-nav { display: none; }
   .balance-chip { display: none; }
   .hero-stats { gap: 22px; }
   .table { display: block; overflow-x: auto; }
+  .page-head { flex-wrap: wrap; }
+  .shell { padding: 0 16px; }
+  /* A 7-day picker has to fit 343px. Flex items default to min-width:auto,
+     i.e. their content width, so the buttons would not shrink on their own. */
+  .seg.wide button { padding: 7px 2px; min-width: 0; font-size: 12.5px; }
+  .seg { max-width: 100%; }
+
+  .mobile-nav {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line-2);
+  }
+  .mobile-nav button {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: 0; cursor: pointer; padding: 6px 0 4px;
+    color: var(--ink-3); font-size: 10.5px; font-weight: 500; letter-spacing: .01em;
+    min-height: 48px; /* comfortable tap target */
+  }
+  .mobile-nav button svg { width: 22px; height: 22px; }
+  .mobile-nav button[aria-current="page"] { color: var(--accent-lift); }
+
+  /* keep the last content and the footer clear of the fixed bar */
+  main.shell { padding-bottom: 12px; }
+  .site-footer { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
 }
 
 /* ==========================================================================

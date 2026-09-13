@@ -7,7 +7,7 @@ import { money } from '../lib/economics.js';
 const NAV = [
   ['machines', 'Machines'],
   ['dashboard', 'Dashboard'],
-  ['settlement', 'Settlement'],
+  ['settlement', 'Payouts'],
   ['wallet', 'Wallet'],
   ['referrals', 'Referrals']
 ];

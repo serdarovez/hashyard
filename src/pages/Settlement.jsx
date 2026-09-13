@@ -13,7 +13,7 @@ export default function Settlement({ day, setDay }) {
 
   return (
     <div className="page narrow">
-      <h1>Settlement</h1>
+      <h1>Payouts</h1>
 
       <div className="seg wide">
         {WEEK.map((w, i) => (

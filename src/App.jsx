@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from './components/Header.jsx';
+import MobileNav from './components/MobileNav.jsx';
 import Machines from './pages/Machines.jsx';
 import MachineDetail from './pages/MachineDetail.jsx';
 import Checkout from './pages/Checkout.jsx';
@@ -90,6 +91,7 @@ function Site() {
           <button className="linkish" onClick={() => go('admin')}>Operator console →</button>
         </div>
       </footer>
+      <MobileNav page={route.page} go={go} />
     </>
   );
 }
