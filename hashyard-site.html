@@ -1,0 +1,3081 @@
+<title>Hashyard</title>
+<style>
+/* ==========================================================================
+   Hashyard — design tokens.
+
+   The bare :root block carries the COMPLETE light palette. The two blocks
+   after it redefine only tokens, never components, so no colour can end up
+   with its single definition behind a media query — that is the classic
+   unreadable-in-one-theme bug. Three states matter: an explicit choice stamps
+   data-theme on <html>; the default "system" stamps nothing, so only
+   prefers-color-scheme separates light from dark.
+   ========================================================================== */
+:root {
+  --bg:        #EDEDEB;
+  --panel:     #FFFFFF;
+  --panel-2:   #F5F5F3;
+  --ink:       #16181A;
+  --ink-2:     #565C62;
+  --ink-3:     #868C93;
+  --line:      #DCDBD6;
+  --line-2:    #E7E6E2;
+  --accent:    #B4560B;
+  --accent-lift:#C9620D;
+  --accent-dim:#FAEFE3;
+  --ok:        #12836B;
+  --ok-dim:    #E2F0EB;
+  --neg:       #B0416A;
+  --neg-dim:   #FBEEF2;
+  --neg-line:  #F0D5DE;
+  --info-line: #EFD9BF;
+  --info-ink:  #8A4A08;
+  --hilite:    rgba(255,255,255,.95);
+  --elev:      0 1px 2px rgba(22,24,26,.05), 0 10px 24px -16px rgba(22,24,26,.16);
+  --card:      linear-gradient(180deg,#FFFFFF 0%,#FCFCFB 100%);
+  --media-bg:  linear-gradient(168deg,#F8F8F6 0%,#EBEAE7 100%);
+  --btn:       linear-gradient(180deg,#C9620D 0%,#AE5209 100%);
+  --btn-glow:  0 6px 18px -8px rgba(180,86,11,.5);
+  --track:     #E4E2DE;
+  --bar:       #CFCCC6;
+  --prop-cost: #B6B3AC;
+  --prop-fee:  #DBD9D4;
+  --tip-bg:    #16181A;
+  --tip-ink:   #F2F2F0;
+  --ambient:   rgba(180,86,11,.10);
+
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body:    "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #0B0E11;
+    --panel:     #15191E;
+    --panel-2:   #1C232A;
+    --ink:       #E4E8EC;
+    --ink-2:     #94A0AC;
+    --ink-3:     #616D79;
+    --line:      #28313A;
+    --line-2:    #1E252B;
+    --accent:    #E06B0D;
+    --accent-lift:#F08420;
+    --accent-dim:#2A1B0C;
+    --ok:        #1FA98B;
+    --ok-dim:    #0E2822;
+    --neg:       #D2557E;
+    --neg-dim:   #241A21;
+    --neg-line:  #402933;
+    --info-line: #4A3418;
+    --info-ink:  #EFC79B;
+    --hilite:    rgba(255,255,255,.055);
+    --elev:      0 12px 30px -20px rgba(0,0,0,.8);
+    --card:      linear-gradient(180deg,#181D23 0%,#13171C 100%);
+    --media-bg:  linear-gradient(168deg,#1F262D 0%,#12171C 100%);
+    --btn:       linear-gradient(180deg,#F08420 0%,#D9660B 100%);
+    --btn-glow:  0 8px 22px -10px rgba(224,107,13,.62);
+    --track:     #232B33;
+    --bar:       #39414A;
+    --prop-cost: #39434D;
+    --prop-fee:  #242C34;
+    --tip-bg:    #000;
+    --tip-ink:   #E4E8EC;
+    --ambient:   rgba(224,107,13,.14);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:        #0B0E11;
+  --panel:     #15191E;
+  --panel-2:   #1C232A;
+  --ink:       #E4E8EC;
+  --ink-2:     #94A0AC;
+  --ink-3:     #616D79;
+  --line:      #28313A;
+  --line-2:    #1E252B;
+  --accent:    #E06B0D;
+  --accent-lift:#F08420;
+  --accent-dim:#2A1B0C;
+  --ok:        #1FA98B;
+  --ok-dim:    #0E2822;
+  --neg:       #D2557E;
+  --neg-dim:   #241A21;
+  --neg-line:  #402933;
+  --info-line: #4A3418;
+  --info-ink:  #EFC79B;
+  --hilite:    rgba(255,255,255,.055);
+  --elev:      0 12px 30px -20px rgba(0,0,0,.8);
+  --card:      linear-gradient(180deg,#181D23 0%,#13171C 100%);
+  --media-bg:  linear-gradient(168deg,#1F262D 0%,#12171C 100%);
+  --btn:       linear-gradient(180deg,#F08420 0%,#D9660B 100%);
+  --btn-glow:  0 8px 22px -10px rgba(224,107,13,.62);
+  --track:     #232B33;
+  --bar:       #39414A;
+  --prop-cost: #39434D;
+  --prop-fee:  #242C34;
+  --tip-bg:    #000;
+  --tip-ink:   #E4E8EC;
+  --ambient:   rgba(224,107,13,.14);
+  color-scheme: dark;
+}
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; }
+html { overflow-x: clip; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.025em; }
+h1 { font-size: clamp(26px, 3.4vw, 40px); font-weight: 800; line-height: 1.05; }
+h2 { font-size: 19px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+select, button { font-family: inherit; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.page { padding: 34px 0 64px; display: flex; flex-direction: column; gap: 26px; }
+.page.narrow { max-width: 760px; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.stack.gap-sm { gap: 7px; }
+.stack.end { align-items: flex-end; }
+.stack.center { align-items: center; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.row.gap { justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
+.wide-row { width: 100%; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.dim { color: var(--ink-2); }
+.small { font-size: 12.5px; line-height: 1.55; }
+.accent { color: var(--accent-lift); }
+.ok { color: var(--ok); }
+.neg { color: var(--neg); }
+.right { text-align: right; }
+.rule { height: 1px; background: var(--line-2); border: 0; margin: 4px 0; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.section-head { margin-top: 8px; }
+.note-line { color: var(--ink-2); font-size: 13.5px; max-width: 78ch; }
+
+/* ---------- header ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-2);
+}
+.header-inner { display: flex; align-items: center; gap: 20px; height: 64px; }
+.brand {
+  display: flex; align-items: center; gap: 9px; background: none; border: 0; cursor: pointer;
+  color: var(--ink); font-family: var(--f-display); font-weight: 800; font-size: 17px;
+  letter-spacing: .015em; padding: 0;
+}
+.brand svg { width: 24px; height: 24px; }
+.brand em { font-style: normal; color: var(--accent); }
+.site-nav { display: flex; gap: 2px; margin-left: 8px; flex: 1; }
+.site-nav button {
+  background: none; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 9px;
+  color: var(--ink-2); font-size: 14px; font-weight: 500;
+}
+.site-nav button:hover { color: var(--ink); background: var(--panel-2); }
+.site-nav button[aria-current="page"] { color: var(--accent-lift); background: var(--accent-dim); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.balance-chip {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 0;
+  background: var(--card); border: 1px solid var(--line-2); border-radius: 11px;
+  padding: 5px 11px; cursor: pointer; color: var(--ink); box-shadow: inset 0 1px 0 var(--hilite);
+}
+.balance-chip .k { font-family: var(--f-mono); font-size: 9px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+.balance-chip .v { font-family: var(--f-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.themer {
+  display: inline-flex; gap: 2px; padding: 3px; background: var(--panel-2);
+  border: 1px solid var(--line-2); border-radius: 10px;
+}
+.themer button {
+  width: 28px; height: 26px; border: 0; border-radius: 7px; background: none; cursor: pointer;
+  color: var(--ink-3); display: grid; place-items: center;
+}
+.themer button svg { width: 14px; height: 14px; }
+.themer button:hover { color: var(--ink-2); }
+.themer button[aria-pressed="true"] { background: var(--panel); color: var(--accent-lift); }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--panel-2); border: 1px solid var(--line); font-family: var(--f-mono);
+  font-size: 12px; color: var(--ink-2); flex: none;
+}
+.avatar.sm { width: 24px; height: 24px; font-size: 10px; display: inline-grid; vertical-align: -7px; margin-right: 7px; }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative; padding: 40px 0 8px;
+}
+.hero::before {
+  content: ''; position: absolute; inset: -20% 0 20% 0;
+  background: radial-gradient(70% 60% at 26% 40%, var(--ambient), transparent 72%);
+  pointer-events: none;
+}
+.hero-copy { position: relative; max-width: 62ch; display: flex; flex-direction: column; gap: 14px; }
+.hero-copy h1 { font-size: clamp(32px, 5vw, 56px); letter-spacing: -.035em; }
+.hero-copy p { color: var(--ink-2); font-size: 16px; max-width: 60ch; }
+.hero-stats { display: flex; gap: 34px; margin-top: 8px; flex-wrap: wrap; }
+.hero-stats .n { font-family: var(--f-mono); font-size: 24px; display: block; }
+.hero-stats .l { font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ---------- panels, tiles ---------- */
+.panel {
+  background: var(--card); border: 1px solid var(--line-2); border-radius: 16px; padding: 18px;
+  box-shadow: inset 0 1px 0 var(--hilite), var(--elev);
+  display: flex; flex-direction: column; gap: 14px;
+}
+.grid { display: grid; gap: 14px; }
+.tiles { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.tiles.two { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.tile {
+  background: var(--card); border: 1px solid var(--line-2); border-radius: 14px; padding: 15px;
+  box-shadow: inset 0 1px 0 var(--hilite); display: flex; flex-direction: column; gap: 3px;
+}
+.tile-value { font-family: var(--f-mono); font-size: 25px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.tile-value small { font-size: 13px; color: var(--ink-2); }
+.tile-value.accent { color: var(--accent-lift); }
+.tile-value.ok { color: var(--ok); }
+.tile-value.warn { color: var(--accent-lift); }
+.tile-sub { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); }
+.split-2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 14px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+
+/* ---------- machines ---------- */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.seg {
+  display: inline-flex; gap: 3px; padding: 3px; background: var(--card);
+  border: 1px solid var(--line-2); border-radius: 12px; box-shadow: inset 0 1px 0 var(--hilite);
+}
+.seg.wide { display: flex; }
+.seg.wide button { flex: 1; }
+.seg button {
+  border: 0; border-radius: 9px; background: none; cursor: pointer; padding: 7px 15px;
+  color: var(--ink-3); font-size: 13px; font-weight: 500;
+}
+.seg button:hover { color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--panel-2); color: var(--ink); }
+.seg button b { font-family: var(--f-mono); font-weight: 500; font-size: 10.5px; color: var(--ink-3); margin-left: 5px; }
+.sorter { display: flex; align-items: center; gap: 8px; }
+.sorter select {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px;
+  color: var(--ink); font-size: 13px;
+}
+.machines-grid { grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); }
+.machine-card {
+  display: flex; flex-direction: column; gap: 12px; text-align: left; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line-2); border-radius: 16px; padding: 15px;
+  box-shadow: inset 0 1px 0 var(--hilite), var(--elev); color: var(--ink);
+  transition: transform .14s, border-color .14s;
+}
+.machine-card:hover { transform: translateY(-2px); border-color: var(--line); }
+.card-top { align-items: flex-start; }
+.media {
+  background: var(--media-bg); border: 1px solid var(--line-2); border-radius: 12px; padding: 8px;
+  box-shadow: inset 0 1px 0 var(--hilite);
+}
+.media svg { width: 100%; height: auto; display: block; }
+.media.large { padding: 22px; }
+.media.thumb { width: 108px; flex: none; padding: 6px; }
+.card-specs, .specs { display: grid; margin: 0; }
+.card-specs { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.card-specs div { display: flex; flex-direction: column; gap: 1px; }
+.card-specs dt, .specs dt {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+}
+.card-specs dd, .specs dd {
+  margin: 0; font-family: var(--f-mono); font-size: 13.5px; font-variant-numeric: tabular-nums;
+}
+.card-specs dd small, .specs dd small { font-size: 10.5px; color: var(--ink-2); margin-left: 2px; }
+.specs {
+  grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line-2);
+  border: 1px solid var(--line-2); border-radius: 14px; overflow: hidden; box-shadow: var(--elev);
+}
+.specs.four { grid-template-columns: repeat(4, 1fr); }
+.specs > div { background: var(--panel); padding: 11px 13px; display: flex; flex-direction: column; gap: 2px; }
+.specs dd { font-size: 15px; }
+.card-foot { align-items: flex-end; }
+
+/* the card answers cost / earnings / payback, and nothing else */
+.card-money {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 12px 0 0; border-top: 1px solid var(--line-2);
+}
+.card-money .k { color: var(--ink-2); font-size: 13.5px; }
+.card-money .v { font-family: var(--f-mono); font-size: 17px; font-variant-numeric: tabular-nums; }
+.card-money .v small { font-size: 11px; color: var(--ink-2); }
+.card-money .v.earn { color: var(--accent-lift); }
+.card-money .v.neg { color: var(--neg); font-size: 14px; }
+.card-note {
+  font-size: 12.5px; color: var(--ink-2); line-height: 1.45;
+  padding-top: 10px; border-top: 1px solid var(--line-2);
+}
+.card-note b { color: var(--ink); font-weight: 600; }
+
+/* ------------------------------------------------------------ plan chooser */
+.plan-option {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; width: 100%;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 13px 15px; cursor: pointer; color: var(--ink); text-align: left;
+}
+.plan-option:hover { border-color: var(--ink-3); }
+.plan-option[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-dim); }
+.plan-head { display: flex; flex-direction: column; gap: 1px; }
+.plan-name { font-family: var(--f-display); font-weight: 700; font-size: 15px; }
+.plan-keep { font-size: 12.5px; color: var(--ink-2); }
+.plan-numbers { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.plan-price { font-family: var(--f-mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+.plan-price small { font-size: 10px; color: var(--ink-3); }
+.plan-monthly { font-family: var(--f-mono); font-size: 12.5px; color: var(--accent-lift); }
+.plan-blurb { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-2); }
+.price { font-family: var(--f-mono); font-size: 18px; font-variant-numeric: tabular-nums; }
+.price small { font-size: 11px; color: var(--ink-2); }
+.yield { font-family: var(--f-mono); font-size: 17px; color: var(--accent-lift); font-variant-numeric: tabular-nums; }
+.yield.neg { color: var(--neg); font-size: 15px; }
+
+/* ---------- detail ---------- */
+.detail { display: grid; grid-template-columns: 1.5fr 1fr; gap: 22px; align-items: start; }
+.detail-main { display: flex; flex-direction: column; gap: 18px; }
+.detail-side { position: sticky; top: 88px; }
+.buy-panel { gap: 16px; }
+.big-price { font-family: var(--f-mono); font-size: 34px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.big-price small { font-size: 15px; color: var(--ink-2); }
+.big-price.accent { color: var(--accent-lift); }
+.lede { color: var(--ink-2); font-size: 15px; }
+.crumb {
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink-2);
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: .04em; align-self: flex-start;
+}
+.crumb:hover { color: var(--accent-lift); }
+
+.split-option {
+  display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 12px 14px;
+  cursor: pointer; color: var(--ink); text-align: left; width: 100%;
+}
+.split-option:hover { border-color: var(--ink-3); }
+.split-option[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-dim); }
+.split-option .t { font-family: var(--f-display); font-weight: 700; font-size: 14.5px; }
+.split-option .n { grid-row: 1 / 3; font-family: var(--f-mono); font-size: 16px; color: var(--accent-lift); text-align: right; }
+.split-option .n small { font-size: 10px; color: var(--ink-3); }
+.split-option .s { grid-column: 1; color: var(--ink-2); font-size: 12.5px; }
+
+/* ---------- ledger, bars ---------- */
+.ledger-row { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.ledger-row .k { color: var(--ink-2); font-size: 13.5px; }
+.ledger-row .v { font-family: var(--f-mono); font-size: 13.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ledger-row.total .k { color: var(--ink); font-weight: 600; font-family: var(--f-display); }
+.ledger-row.total .v { color: var(--accent-lift); font-size: 16px; font-weight: 600; }
+.prop { display: flex; height: 8px; border-radius: 5px; overflow: hidden; gap: 2px; background: var(--bg); }
+.prop i { display: block; height: 100%; }
+.prop .yours { background: var(--accent); }
+.prop .cost { background: var(--prop-cost); }
+.prop .fee { background: var(--prop-fee); }
+.frac { display: flex; align-items: center; gap: 9px; }
+.frac .track { flex: 1; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.frac .track i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.frac .lbl { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); white-space: nowrap; }
+
+/* ---------- chart ---------- */
+.chart-block { display: flex; flex-direction: column; }
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 130px; padding-top: 20px; }
+.chart-col {
+  flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%;
+  background: none; border: 0; padding: 0; cursor: pointer; position: relative;
+}
+.chart-bar { width: 100%; background: var(--bar); border-radius: 5px 5px 0 0; min-height: 3px; transition: background .12s; }
+.chart-col.is-today .chart-bar { background: var(--accent); }
+.chart-col:hover .chart-bar, .chart-col:focus-visible .chart-bar { background: var(--accent-lift); }
+/* SLA top-up: the same hue, lighter — a second colour would be a categorical
+   palette, which has to survive CVD separation for a distinction this small. */
+.chart-topup { display: block; width: 100%; background: var(--accent); opacity: .45; border-radius: 5px 5px 0 0; box-shadow: 0 2px 0 0 var(--panel); }
+.chart-tip {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  background: var(--tip-bg); color: var(--tip-ink); border-radius: 8px; padding: 5px 9px;
+  font-family: var(--f-mono); font-size: 11px; white-space: nowrap; z-index: 4;
+}
+.chart-tip em { font-style: normal; color: var(--ink-3); }
+.chart-axis { display: flex; gap: 6px; margin-top: 8px; }
+.chart-axis span {
+  flex: 1; text-align: center; font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: .05em; color: var(--ink-3); text-transform: uppercase;
+}
+.chart-axis span.is-today { color: var(--accent-lift); }
+.chart-foot { margin-top: 10px; }
+
+/* ---------- misc ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; height: 23px; padding: 0 9px; border-radius: 7px;
+  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
+}
+.pill.run { background: var(--ok-dim); color: var(--ok); }
+.pill.hot { background: var(--accent-dim); color: var(--accent-lift); }
+.pill.mute { background: var(--panel-2); color: var(--ink-2); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .pill.run .dot { animation: pulse 2.4s ease-in-out infinite; }
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 18px; border-radius: 12px; cursor: pointer;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--line);
+  font-family: var(--f-display); font-size: 14px; font-weight: 700;
+  box-shadow: inset 0 1px 0 var(--hilite);
+}
+.btn:hover { background: var(--panel-2); }
+.btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-lift); }
+.btn.primary {
+  background: var(--btn); color: #FFF4EA; border: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), var(--btn-glow);
+}
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.primary:active { transform: translateY(1px); }
+.btn.wide { width: 100%; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.notice { border-radius: 12px; padding: 12px 14px; font-size: 13px; line-height: 1.5; }
+.notice.info { background: var(--accent-dim); border: 1px solid var(--info-line); color: var(--info-ink); }
+.notice.warn { background: var(--neg-dim); border: 1px solid var(--neg-line); color: var(--neg); }
+
+.field {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 11px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.field label { font-family: var(--f-mono); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+.field .val { font-family: var(--f-mono); font-size: 14px; word-break: break-all; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.table th {
+  text-align: left; font-family: var(--f-mono); font-size: 9.5px; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  padding: 0 0 9px; border-bottom: 1px solid var(--line);
+}
+.table td { padding: 11px 0; border-bottom: 1px solid var(--line-2); }
+.table tr:last-child td { border-bottom: 0; }
+.table .right { text-align: right; }
+
+.deposit-panel { align-items: center; }
+.qr { width: 176px; height: 176px; background: #fff; border: 1px solid var(--line-2); border-radius: 12px; padding: 8px; }
+.rig-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.rig-row .stack { flex: 1; gap: 4px; align-items: flex-start; }
+.success { align-items: center; text-align: center; gap: 16px; }
+.success .tick {
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-dim); color: var(--accent-lift); font-size: 24px;
+}
+.success .specs { width: 100%; }
+
+.site-footer { border-top: 1px solid var(--line-2); margin-top: 40px; padding: 22px 0 40px; }
+.footer-inner { display: flex; flex-wrap: wrap; gap: 8px 26px; color: var(--ink-3); font-size: 12px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+  .detail, .split-2 { grid-template-columns: 1fr; }
+  .detail-side { position: static; }
+  .specs.four { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .site-nav { display: none; }
+  .balance-chip { display: none; }
+  .hero-stats { gap: 22px; }
+  .table { display: block; overflow-x: auto; }
+}
+
+/* ==========================================================================
+   Operator console
+   ========================================================================== */
+.admin { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100vh; }
+.admin-nav {
+  border-right: 1px solid var(--line-2); background: var(--panel);
+  padding: 20px 14px; display: flex; flex-direction: column; gap: 18px;
+  position: sticky; top: 0; height: 100vh;
+}
+.admin-brand { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+.admin-brand strong { font-family: var(--f-display); font-size: 15px; letter-spacing: -.02em; }
+.admin-nav nav { display: flex; flex-direction: column; gap: 2px; }
+.admin-nav nav button {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+  padding: 9px 10px; border-radius: 9px; color: var(--ink-2); font-size: 14px; font-weight: 500;
+}
+.admin-nav nav button:hover { background: var(--panel-2); color: var(--ink); }
+.admin-nav nav button[aria-current="page"] { background: var(--accent-dim); color: var(--accent-lift); }
+.count {
+  font-family: var(--f-mono); font-size: 10px; font-style: normal; min-width: 18px; height: 18px;
+  padding: 0 5px; border-radius: 9px; background: var(--accent); color: #FFF4EA;
+  display: grid; place-items: center;
+}
+.admin-dirty {
+  margin-top: auto; font-size: 12px; line-height: 1.45; color: var(--info-ink);
+  background: var(--accent-dim); border: 1px solid var(--info-line);
+  border-radius: 10px; padding: 10px 11px;
+}
+.admin-exit {
+  background: none; border: 0; cursor: pointer; text-align: left; padding: 8px 10px;
+  color: var(--ink-3); font-size: 13px; font-family: var(--f-mono);
+}
+.admin-exit:hover { color: var(--accent-lift); }
+.admin-main { padding: 30px 30px 70px; min-width: 0; }
+.admin-page { display: flex; flex-direction: column; gap: 22px; max-width: 1220px; }
+.admin-alerts { display: flex; flex-direction: column; gap: 10px; }
+
+.linkish {
+  background: none; border: 0; padding: 0; cursor: pointer; color: var(--accent-lift);
+  font: inherit; text-decoration: underline; text-underline-offset: 2px;
+}
+.btn.tiny { height: 30px; padding: 0 11px; font-size: 12.5px; border-radius: 9px; }
+.row-actions { display: inline-flex; gap: 6px; justify-content: flex-end; }
+.table tr.is-down td { opacity: .55; }
+.table td .warn, .warn { color: var(--accent-lift); }
+.tile-value.warn { color: var(--accent-lift); }
+.tile-value.neg { color: var(--neg); }
+
+.controls { display: flex; flex-direction: column; gap: 18px; }
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control label { font-family: var(--f-display); font-weight: 700; font-size: 14px; }
+.control .val { font-size: 15px; }
+.control .val small { color: var(--ink-3); font-size: 10.5px; }
+.edited {
+  font-family: var(--f-mono); font-style: normal; font-size: 9px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--accent-lift); background: var(--accent-dim);
+  padding: 2px 6px; border-radius: 5px; margin-left: 8px;
+}
+.control input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+.tree { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.8; }
+.tree ul { padding-left: 18px; }
+
+.live-banner {
+  background: var(--accent-dim); border-bottom: 1px solid var(--info-line); color: var(--info-ink);
+  font-size: 13px; padding: 9px 24px; display: flex; gap: 12px; align-items: center; justify-content: center;
+}
+.live-banner button {
+  background: none; border: 0; cursor: pointer; color: inherit; font: inherit;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+  .admin { grid-template-columns: 1fr; }
+  .admin-nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line-2); }
+  .admin-nav nav { flex-direction: row; flex-wrap: wrap; }
+  .admin-main { padding: 22px 18px 60px; }
+}
+
+#root { min-height: 100vh; }
+.boot-msg { max-width: 46ch; margin: 18vh auto; padding: 24px; font-family: var(--f-body); color: var(--ink-2); }
+.boot-msg h1 { font-size: 20px; color: var(--ink); margin-bottom: 10px; }
+.boot-msg code { font-family: var(--f-mono); font-size: 13px; background: var(--panel-2); padding: 2px 6px; border-radius: 5px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+
+<script type="text/babel" data-presets="react" data-type="module">
+const { useState, useEffect, useMemo, useCallback, useId, useContext, createContext, Fragment } = React;
+
+/* ===== src/data/config.js ===== */
+/**
+ * The entire economy of the platform.
+ *
+ * Nothing in the UI hardcodes a yield, a payout or a fee — every figure on
+ * every page is derived from these constants plus a machine's nameplate
+ * specs. Change a value here and the whole site moves with it.
+ */
+const CONFIG = {
+  ticker:        'USDT',
+  network:       'TRC-20 (Tron)',
+
+  // market
+  btcHashprice:  45.20,   // USD per PH/s per day, SHA-256
+  ltcHashprice:  0.95,    // USD per GH/s per day, Scrypt (incl. merged DOGE)
+  kasHashprice:  0.55,    // USD per TH/s per day, kHeavyHash
+  powerRate:     0.062,   // USD per kWh, hosting tariff
+
+  // commercial terms
+  splitStandard: 0.80,    // owner's share of net revenue — no lock-in
+  splitPro:      0.90,    // owner's share of net revenue — costs more up front
+  proPremium:    0.06,    // Pro costs this much more to buy. Without a real price
+                          // difference the cheaper split is strictly worse, and the
+                          // choice stops meaning anything.
+  entryPrice:    250,     // cheapest share on the ladder
+
+  // the uptime guarantee. Covers hours hashed, never the price of a hash.
+  // Break-even uptime for the platform is exactly ownerSplit × uptimeSLA,
+  // so 80/20 turns a loss below 77.6% and 90/10 below 87.3%.
+  uptimeSLA:     0.97,
+  slaFunding:    'fee',   // self-insured out of the platform fee, no reserve
+
+  // promotions
+  firstDeposit:  0.10,    // hosting credit on a first deposit
+  firstDepCap:   250,
+  referralShare: 0.05,    // share of the PLATFORM FEE, never of a deposit
+
+  // withdrawals
+  withdrawFee:   1.00,
+  withdrawMin:   10
+};
+
+/* ===== src/data/catalog.js ===== */
+/**
+ * Real nameplate specs. Two kinds of product:
+ *
+ *   share - a hashrate slice of a machine already racked. Priced at the
+ *           parent's per-terahash rate and carrying the same proportion of its
+ *           power draw, so a share returns exactly what the whole unit returns.
+ *           This is what lets the ladder start at 250 USDT: no ASIC costs that
+ *           little, but a sixteenth of one does.
+ *   unit  - the whole machine, racked under the buyer's name.
+ */
+const RIGS = [
+  // ---- shares: the entry ladder, 250 -> 1500 ----
+  { id: 'sh-s21pro-14', kind: 'share', brand: 'Bitmain', model: 'S21 Pro / 14 TH share',
+    of: { model: 'Antminer S21 Pro', hash: 234 }, algo: 'SHA-256', coin: 'BTC',
+    hash: 14, unit: 'TH/s', watts: 210, price: 250, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 420 },
+  { id: 'sh-s21pro-28', kind: 'share', brand: 'Bitmain', model: 'S21 Pro / 28 TH share',
+    of: { model: 'Antminer S21 Pro', hash: 234 }, algo: 'SHA-256', coin: 'BTC',
+    hash: 28, unit: 'TH/s', watts: 420, price: 500, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 210 },
+  { id: 'sh-m60sp-50', kind: 'share', brand: 'MicroBT', model: 'M60S+ / 50 TH share',
+    of: { model: 'Whatsminer M60S+', hash: 212 }, algo: 'SHA-256', coin: 'BTC',
+    hash: 50, unit: 'TH/s', watts: 821, price: 750, cool: 'Air', skin: 'microbt',
+    site: 'Ekibastuz, KZ', stock: 96 },
+  { id: 'sh-s21xp-48', kind: 'share', brand: 'Bitmain', model: 'S21 XP / 48 TH share',
+    of: { model: 'Antminer S21 XP', hash: 270 }, algo: 'SHA-256', coin: 'BTC',
+    hash: 48, unit: 'TH/s', watts: 648, price: 1000, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 72 },
+  { id: 'sh-s21xph-72', kind: 'share', brand: 'Bitmain', model: 'S21 XP Hydro / 72 TH share',
+    of: { model: 'Antminer S21 XP Hydro', hash: 473 }, algo: 'SHA-256', coin: 'BTC',
+    hash: 72, unit: 'TH/s', watts: 864, price: 1500, cool: 'Hydro', skin: 'bitmain-h',
+    site: 'Itaipu, PY', stock: 38 },
+
+  // ---- whole units, 1560 -> 17900 ----
+  { id: 's19kpro', kind: 'unit', brand: 'Bitmain', model: 'Antminer S19k Pro', algo: 'SHA-256', coin: 'BTC',
+    hash: 120, unit: 'TH/s', watts: 2760, price: 1560, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 63 },
+  { id: 's19xp', kind: 'unit', brand: 'Bitmain', model: 'Antminer S19 XP', algo: 'SHA-256', coin: 'BTC',
+    hash: 141, unit: 'TH/s', watts: 3010, price: 2115, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 47 },
+  { id: 'm50spp', kind: 'unit', brand: 'MicroBT', model: 'Whatsminer M50S++', algo: 'SHA-256', coin: 'BTC',
+    hash: 156, unit: 'TH/s', watts: 3276, price: 2340, cool: 'Air', skin: 'microbt',
+    site: 'Ekibastuz, KZ', stock: 52 },
+  { id: 'm60sp', kind: 'unit', brand: 'MicroBT', model: 'Whatsminer M60S+', algo: 'SHA-256', coin: 'BTC',
+    hash: 212, unit: 'TH/s', watts: 3479, price: 3180, cool: 'Air', skin: 'microbt',
+    site: 'Ekibastuz, KZ', stock: 41 },
+  { id: 's21pro', kind: 'unit', brand: 'Bitmain', model: 'Antminer S21 Pro', algo: 'SHA-256', coin: 'BTC',
+    hash: 234, unit: 'TH/s', watts: 3510, price: 4299, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 34 },
+  { id: 's21xp', kind: 'unit', brand: 'Bitmain', model: 'Antminer S21 XP', algo: 'SHA-256', coin: 'BTC',
+    hash: 270, unit: 'TH/s', watts: 3645, price: 5690, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 12 },
+  { id: 'm66sp', kind: 'unit', brand: 'MicroBT', model: 'Whatsminer M66S+', algo: 'SHA-256', coin: 'BTC',
+    hash: 318, unit: 'TH/s', watts: 5406, price: 6120, cool: 'Hydro', skin: 'microbt-h',
+    site: 'Itaipu, PY', stock: 9 },
+  { id: 'ks5pro', kind: 'unit', brand: 'Bitmain', model: 'Antminer KS5 Pro', algo: 'kHeavyHash', coin: 'KAS',
+    hash: 21, unit: 'TH/s', watts: 3150, price: 6900, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 7 },
+  { id: 'l9', kind: 'unit', brand: 'Bitmain', model: 'Antminer L9', algo: 'Scrypt', coin: 'LTC + DOGE',
+    hash: 16, unit: 'GH/s', watts: 3360, price: 8400, cool: 'Air', skin: 'bitmain',
+    site: 'Ekibastuz, KZ', stock: 4 },
+  { id: 's21xph', kind: 'unit', brand: 'Bitmain', model: 'Antminer S21 XP Hydro', algo: 'SHA-256', coin: 'BTC',
+    hash: 473, unit: 'TH/s', watts: 5676, price: 9850, cool: 'Hydro', skin: 'bitmain-h',
+    site: 'Itaipu, PY', stock: 6 },
+  { id: 's21e3u', kind: 'unit', brand: 'Bitmain', model: 'Antminer S21e XP Hyd 3U', algo: 'SHA-256', coin: 'BTC',
+    hash: 860, unit: 'TH/s', watts: 11180, price: 17900, cool: 'Hydro', skin: 'bitmain-h',
+    site: 'Itaipu, PY', stock: 3 },
+
+];
+
+const byId = (id) => RIGS.find((r) => r.id === id);
+
+/* ===== src/lib/economics.js ===== */
+/**
+ * Every function takes the config explicitly, defaulting to the shipped one.
+ *
+ * That is what lets the admin panel edit hashprice or the power tariff and
+ * have the customer-facing pages recompute: the live config comes from React
+ * context and is threaded in here, rather than these functions closing over a
+ * module singleton that no re-render can see.
+ */
+
+/** Gross USD a machine mines in a day at the given hashprice. */
+function grossPerDay(rig, cfg = CONFIG) {
+  if (rig.algo === 'SHA-256') return (rig.hash / 1000) * cfg.btcHashprice;
+  if (rig.algo === 'kHeavyHash') return rig.hash * cfg.kasHashprice;
+  return rig.hash * cfg.ltcHashprice; // Scrypt
+}
+
+/** A machine's steady-state day at a given owner split. */
+function econ(rig, share, cfg = CONFIG) {
+  const gross = grossPerDay(rig, cfg);
+  const power = (rig.watts / 1000) * 24 * cfg.powerRate;
+  const net = gross - power;
+  const you = net * share;
+  return {
+    gross,
+    power,
+    net,
+    you,
+    fee: net * (1 - share),
+    dailyPct: (you / rig.price) * 100,
+    apr: (you / rig.price) * 365 * 100,
+    payback: Math.round(rig.price / you),
+    viable: you > 0
+  };
+}
+
+/**
+ * One dated day of settlement.
+ *
+ * Two things move independently: `hp`, the hashprice that day, and `up`, the
+ * fraction of the day the machine actually hashed. Only `up` is guaranteed - a
+ * shortfall is topped up to what SLA uptime would have earned AT THAT DAY'S
+ * hashprice, which keeps the liability bounded and leaves price risk with the
+ * owner.
+ */
+function dayEcon(day, rig, share, cfg = CONFIG) {
+  const base = econ(rig, share, cfg);
+  const gross = base.gross * day.hp * day.up;
+  const power = base.power * day.up; // a stopped machine draws nothing
+  const net = gross - power;
+  const earned = net * share;
+  const fullNet = base.gross * day.hp - base.power;
+  const floor = fullNet * share * cfg.uptimeSLA;
+  const credit = Math.max(0, floor - earned);
+  return {
+    ...day,
+    gross,
+    power,
+    net,
+    earned,
+    credit,
+    fee: net * (1 - share),
+    paid: earned + credit
+  };
+}
+
+/**
+ * The uptime below which SLA credits cost the platform more than the fee it
+ * collected that day. The algebra cancels hashprice, model and power cost:
+ * only the split and the floor matter.
+ */
+const breakEvenUptime = (share, cfg = CONFIG) => share * cfg.uptimeSLA;
+
+/**
+ * What a machine costs at a given split. Pro keeps more of the revenue and
+ * costs more up front - that difference is the whole reason the choice exists.
+ */
+function priceFor(rig, share, cfg = CONFIG) {
+  return share >= cfg.splitPro ? Math.round(rig.price * (1 + cfg.proPremium)) : rig.price;
+}
+
+/** Months to earn back the purchase price at today's rate. */
+function paybackMonths(rig, share, cfg = CONFIG) {
+  const e = econ(rig, share, cfg);
+  if (!e.viable) return null;
+  return Math.round(priceFor(rig, share, cfg) / e.you / 30.44);
+}
+
+function efficiency(rig) {
+  return rig.unit === 'TH/s'
+    ? { v: (rig.watts / rig.hash).toFixed(1), u: 'J/TH' }
+    : { v: (rig.watts / (rig.hash * 1000)).toFixed(2), u: 'J/MH' };
+}
+
+function hashpriceLabel(rig, cfg = CONFIG) {
+  if (rig.algo === 'SHA-256') return '$' + money(cfg.btcHashprice) + '/PH-day';
+  if (rig.algo === 'kHeavyHash') return '$' + cfg.kasHashprice.toFixed(2) + '/TH-day';
+  return '$' + cfg.ltcHashprice.toFixed(2) + '/GH-day';
+}
+
+const money = (n) =>
+  n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const round = (n) => n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+/* ===== src/data/account.js ===== */
+/**
+ * Demo account and the trading week.
+ *
+ * Anything that depends on the config is a BUILDER, not a constant, because
+ * the admin panel can change the config at runtime. The provider calls these
+ * inside a useMemo keyed on the live config.
+ */
+const ME = {
+  name: 'Merdan A.',
+  handle: 'merdan',
+  initials: 'MA',
+  joined: 'June 2026',
+  balance: 1284.6,
+  credit: 186.4,
+  address: 'TQr7Vd4kK9mYh2PnLxJ6cWzA8fS3bNuE5g',
+  payoutAddress: 'TJm5Wc2xR8pQ4nZ7bVdL3sKyH9aE6fUt1r',
+  owned: { rigId: 's21pro', share: CONFIG.splitStandard, days: 34, qty: 1, serial: '21P-8842-KZ' },
+  invites: [
+    { n: 'Aylar K.', i: 'AK', since: '12 Jun', rigs: 2, earned: 41.8, live: true },
+    { n: 'Serdar M.', i: 'SM', since: '03 Jul', rigs: 1, earned: 17.25, live: true },
+    { n: 'Jemal O.', i: 'JO', since: '21 Jul', rigs: 1, earned: 9.4, live: true },
+    { n: 'Batyr R.', i: 'BR', since: '02 Aug', rigs: 0, earned: 0, live: false }
+  ]
+};
+
+/**
+ * `hp` is the hashprice multiplier for that day, `up` the fraction of hours
+ * the machine actually hashed. Thursday is a real outage: the day the uptime
+ * guarantee pays.
+ */
+const WEEK = [
+  { d: 'Mon', date: '3 Sep', hp: 0.94, up: 1.0, note: 'Normal' },
+  { d: 'Tue', date: '4 Sep', hp: 1.02, up: 1.0, note: 'Normal' },
+  { d: 'Wed', date: '5 Sep', hp: 0.97, up: 0.998, note: 'Pool reconnect, 3 min' },
+  { d: 'Thu', date: '6 Sep', hp: 1.07, up: 0.712, note: 'Hashboard 2 fault - swapped 16:40' },
+  { d: 'Fri', date: '7 Sep', hp: 0.99, up: 1.0, note: 'Normal' },
+  { d: 'Sat', date: '8 Sep', hp: 1.03, up: 0.991, note: 'Firmware update, 13 min' },
+  { d: 'Sun', date: '9 Sep', hp: 1.0, up: 1.0, note: 'Normal' }
+];
+
+const REF_TOTAL = ME.invites.reduce((a, b) => a + b.earned, 0);
+
+/** Everything the customer pages need, recomputed whenever the config moves. */
+function buildAccount(cfg) {
+  const myRig = byId(ME.owned.rigId);
+  const myEcon = econ(myRig, ME.owned.share, cfg);
+  const series = WEEK.map((d) => dayEcon(d, myRig, ME.owned.share, cfg));
+  const weekTotal = series.reduce((a, b) => a + b.paid, 0);
+  const weekCredit = series.reduce((a, b) => a + b.credit, 0);
+  const weekUptime = series.reduce((a, b) => a + b.up, 0) / series.length;
+  const lifetime = myEcon.you * ME.owned.days;
+  return { myRig, myEcon, series, weekTotal, weekCredit, weekUptime, lifetime, tx: buildTx(series, cfg) };
+}
+
+function buildTx(series, cfg) {
+  return [
+    { t: 'payout', on: 'earn', d: 'Today, 00:07', amt: series[6].paid, note: 'S21 Pro daily settlement' },
+    { t: 'payout', on: 'earn', d: '8 Sep, 00:07', amt: series[5].paid, note: 'S21 Pro daily settlement' },
+    { t: 'referral', on: 'earn', d: '8 Sep, 00:07', amt: 1.42, note: 'Aylar K. revenue share' },
+    { t: 'payout', on: 'earn', d: '7 Sep, 00:07', amt: series[4].paid, note: 'S21 Pro daily settlement' },
+    { t: 'credit', on: 'earn', d: '6 Sep, 00:07', amt: series[3].credit,
+      note: `Uptime credit, SLA ${Math.round(cfg.uptimeSLA * 100)}%` },
+    { t: 'payout', on: 'earn', d: '6 Sep, 00:07', amt: series[3].earned, note: 'S21 Pro daily settlement' },
+    { t: 'withdraw', on: 'chain', d: '4 Sep, 18:22', amt: -320, note: 'TJm5...Ut1r', hash: 'a3f907...c21b' },
+    { t: 'payout', on: 'earn', d: '4 Sep, 00:07', amt: series[1].paid, note: 'S21 Pro daily settlement' },
+    { t: 'purchase', on: 'buy', d: '6 Aug, 11:04', amt: -4299, note: 'Antminer S21 Pro, 80/20 split' },
+    { t: 'bonus', on: 'earn', d: '6 Aug, 10:58', amt: 250, note: 'First-deposit hosting credit' },
+    { t: 'deposit', on: 'chain', d: '6 Aug, 10:52', amt: 5400, note: 'TQr7...NuE5g', hash: '7b1ec4...9f04' }
+  ];
+}
+
+const TX_LABEL = {
+  payout: 'Daily payout',
+  credit: 'Uptime credit',
+  referral: 'Referral share',
+  bonus: 'Deposit bonus',
+  deposit: 'Deposit',
+  withdraw: 'Withdrawal',
+  purchase: 'Machine purchase'
+};
+
+/* ===== src/data/admin.js ===== */
+/**
+ * Operator-side fixtures: the fleet, the customers, the order book and the
+ * withdrawal queue. Same shape a real backend would return.
+ */
+
+const SEED_FLEET = [
+  { sn: '21P-8842-KZ', rigId: 's21pro', owner: 'Merdan A.', site: 'Ekibastuz', uptime: 0.957, temp: 64, online: true },
+  { sn: '21P-9107-KZ', rigId: 's21pro', owner: 'Aylar K.', site: 'Ekibastuz', uptime: 0.994, temp: 61, online: true },
+  { sn: '21X-4410-KZ', rigId: 's21xp', owner: 'Aylar K.', site: 'Ekibastuz', uptime: 0.998, temp: 59, online: true },
+  { sn: 'M60-7731-KZ', rigId: 'm60sp', owner: 'Serdar M.', site: 'Ekibastuz', uptime: 0.981, temp: 67, online: true },
+  { sn: 'M60-7732-KZ', rigId: 'm60sp', owner: 'pool', site: 'Ekibastuz', uptime: 0.912, temp: 71, online: true },
+  { sn: '19K-2205-KZ', rigId: 's19kpro', owner: 'Jemal O.', site: 'Ekibastuz', uptime: 0.889, temp: 74, online: true },
+  { sn: '21H-0071-PY', rigId: 's21xph', owner: 'pool', site: 'Itaipu', uptime: 0.999, temp: 48, online: true },
+  { sn: '21H-0072-PY', rigId: 's21xph', owner: 'Merdan A.', site: 'Itaipu', uptime: 0.996, temp: 47, online: true },
+  { sn: 'M66-3390-PY', rigId: 'm66sp', owner: 'pool', site: 'Itaipu', uptime: 0.643, temp: 0, online: false },
+  { sn: 'L9-0512-KZ', rigId: 'l9', owner: 'Serdar M.', site: 'Ekibastuz', uptime: 0.977, temp: 69, online: true },
+  { sn: 'KS5-1180-KZ', rigId: 'ks5pro', owner: 'pool', site: 'Ekibastuz', uptime: 0.968, temp: 66, online: true },
+  { sn: '21E-0009-PY', rigId: 's21e3u', owner: 'pool', site: 'Itaipu', uptime: 0.991, temp: 51, online: true }
+];
+
+const SEED_USERS = [
+  { id: 'u_8841', name: 'Merdan A.', handle: 'merdan', joined: '14 Jun 2026', balance: 1284.6,
+    rigs: 2, kyc: 'approved', referredBy: null },
+  { id: 'u_8902', name: 'Aylar K.', handle: 'aylar', joined: '12 Jun 2026', balance: 402.15,
+    rigs: 2, kyc: 'approved', referredBy: 'merdan' },
+  { id: 'u_9014', name: 'Serdar M.', handle: 'serdar', joined: '03 Jul 2026', balance: 88.4,
+    rigs: 2, kyc: 'approved', referredBy: 'merdan' },
+  { id: 'u_9130', name: 'Jemal O.', handle: 'jemal', joined: '21 Jul 2026', balance: 12.05,
+    rigs: 1, kyc: 'pending', referredBy: 'merdan' },
+  { id: 'u_9288', name: 'Batyr R.', handle: 'batyr', joined: '02 Aug 2026', balance: 0,
+    rigs: 0, kyc: 'none', referredBy: 'merdan' }
+];
+
+const SEED_ORDERS = [
+  { id: 'o_2291', when: '9 Sep 09:14', user: 'Aylar K.', rigId: 'sh-s21pro-28', split: 0.8, amount: 500, status: 'filled' },
+  { id: 'o_2290', when: '8 Sep 17:02', user: 'Serdar M.', rigId: 'l9', split: 0.9, amount: 8400, status: 'racking' },
+  { id: 'o_2289', when: '8 Sep 11:48', user: 'Jemal O.', rigId: 'sh-s21pro-14', split: 0.8, amount: 250, status: 'filled' },
+  { id: 'o_2288', when: '7 Sep 20:31', user: 'Aylar K.', rigId: 's21xp', split: 0.9, amount: 5690, status: 'filled' },
+  { id: 'o_2287', when: '7 Sep 08:05', user: 'Batyr R.', rigId: 'sh-m60sp-50', split: 0.8, amount: 750, status: 'cancelled' }
+];
+
+const SEED_WITHDRAWALS = [
+  { id: 'w_5512', when: '9 Sep 08:41', user: 'Merdan A.', amount: 1284.6,
+    address: 'TJm5Wc2xR8pQ4nZ7bVdL3sKyH9aE6fUt1r', status: 'pending', kyc: 'approved' },
+  { id: 'w_5511', when: '9 Sep 07:12', user: 'Aylar K.', amount: 12400.0,
+    address: 'TWd8Fk3nQ2xV7bR1sL9cYzP4aH6eU5tJm', status: 'pending', kyc: 'approved' },
+  { id: 'w_5510', when: '8 Sep 22:55', user: 'Jemal O.', amount: 60.0,
+    address: 'TPq2Rn7wK4mX9hL5bV3cZsA8fD6gN1uE0', status: 'pending', kyc: 'pending' },
+  { id: 'w_5509', when: '8 Sep 14:20', user: 'Serdar M.', amount: 88.4,
+    address: 'TKz9Bm4xW7pN2vQ6rL8cYtA5fS3dH1uJ2', status: 'approved', kyc: 'approved' },
+  { id: 'w_5508', when: '7 Sep 19:03', user: 'Aylar K.', amount: 320.0,
+    address: 'TWd8Fk3nQ2xV7bR1sL9cYzP4aH6eU5tJm', status: 'sent', kyc: 'approved' }
+];
+
+/** Withdrawals over this size get a human in the loop. */
+const REVIEW_THRESHOLD = 10000;
+
+/* ===== src/state/PlatformContext.jsx ===== */
+/**
+ * One store for both sides of the product.
+ *
+ * The admin panel edits `config`; every customer page derives its figures from
+ * that same object, so a change to hashprice or the power tariff moves the
+ * marketplace, the dashboard and the settlement page in the same render. That
+ * is the whole point of keeping the economy in constants rather than scattering
+ * numbers through the views.
+ */
+const PlatformContext = createContext(null);
+
+function PlatformProvider({ children }) {
+  const [config, setConfig] = useState(CONFIG);
+  const [fleet, setFleet] = useState(SEED_FLEET);
+  const [withdrawals, setWithdrawals] = useState(SEED_WITHDRAWALS);
+  const [users] = useState(SEED_USERS);
+  const [orders] = useState(SEED_ORDERS);
+
+  // Recomputed only when the config actually moves.
+  const account = useMemo(() => buildAccount(config), [config]);
+
+  const setConfigValue = useCallback((key, value) => {
+    setConfig((c) => ({ ...c, [key]: value }));
+  }, []);
+
+  const resetConfig = useCallback(() => setConfig(CONFIG), []);
+
+  const decideWithdrawal = useCallback((id, status) => {
+    setWithdrawals((ws) => ws.map((w) => (w.id === id ? { ...w, status } : w)));
+  }, []);
+
+  const toggleRig = useCallback((sn) => {
+    setFleet((f) =>
+      f.map((r) => (r.sn === sn ? { ...r, online: !r.online, temp: r.online ? 0 : 62 } : r))
+    );
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      config, setConfigValue, resetConfig,
+      dirty: Object.keys(CONFIG).some((k) => CONFIG[k] !== config[k]),
+      ...account,
+      fleet, toggleRig,
+      withdrawals, decideWithdrawal,
+      users, orders
+    }),
+    [config, account, fleet, withdrawals, users, orders,
+     setConfigValue, resetConfig, decideWithdrawal, toggleRig]
+  );
+
+  return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;
+}
+
+function usePlatform() {
+  const ctx = useContext(PlatformContext);
+  if (!ctx) throw new Error('usePlatform must be used inside <PlatformProvider>');
+  return ctx;
+}
+
+/* ===== src/lib/useRouter.js ===== */
+/**
+ * Hash routing, deliberately dependency-free.
+ *
+ * A marketplace needs shareable URLs - #/machines/s21pro has to survive a
+ * reload and a paste into chat - but react-router is a lot of surface for
+ * seven routes. Swap this for react-router-dom the day you need nested
+ * layouts or loaders; every caller only uses `route` and `go`.
+ */
+const parse = () => {
+  const raw = window.location.hash.replace(/^#\/?/, '');
+  const [path, query] = raw.split('?');
+  const parts = path.split('/').filter(Boolean);
+  return {
+    page: parts[0] || 'machines',
+    param: parts[1] || null,
+    query: Object.fromEntries(new URLSearchParams(query || ''))
+  };
+};
+
+function useRouter() {
+  const [route, setRoute] = useState(parse);
+
+  useEffect(() => {
+    const onHash = () => setRoute(parse());
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  const go = useCallback((page, param) => {
+    window.location.hash = '#/' + page + (param ? '/' + param : '');
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }, []);
+
+  return { route, go };
+}
+
+/* ===== src/lib/useTheme.js ===== */
+const KEY = 'hy-theme';
+
+const read = () => {
+  try {
+    return localStorage.getItem(KEY) || 'system';
+  } catch {
+    return 'system'; // private mode - session only
+  }
+};
+
+/**
+ * Three states, not two. An explicit choice stamps data-theme on <html>;
+ * "system" removes the stamp so prefers-color-scheme decides. Every colour in
+ * styles.css is a token defined for all three states.
+ */
+function useTheme() {
+  const [theme, setTheme] = useState(read);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {
+      /* ignore */
+    }
+  }, [theme]);
+
+  const resolved =
+    theme !== 'system'
+      ? theme
+      : window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+
+  return { theme, setTheme, resolved };
+}
+
+/* ===== src/components/RigDrawing.jsx ===== */
+/**
+ * Parametric front elevation of an ASIC miner.
+ *
+ * These are drawings, not photographs, and that is deliberate: there are no
+ * free-licensed photos of an S21 Pro or an M60S+, and a stock shot of the
+ * wrong model under a real SKU reads as fraud to anyone who knows the
+ * hardware. A drawing that matches the chassis, fan count and cooling type is
+ * honest. When you have licensed photography, render <img> here instead and
+ * keep this as the fallback for models you have not shot yet.
+ */
+const SKINS = {
+  bitmain: { body: '#B9BFC4', top: '#DDE1E4', shade: '#8C939A', face: '#2B3036',
+             faceHi: '#3B424A', guard: '#8A929A', cap: '#464E56', well1: '#1A1E22', well2: '#07090B' },
+  'bitmain-h': { body: '#A6AEB5', top: '#CFD5D9', shade: '#7B838B', face: '#333A42',
+             faceHi: '#424B54', guard: '#7E868E', cap: '#3E464E', well1: '#1C2126', well2: '#090C0F' },
+  microbt: { body: '#D3D6D8', top: '#F1F2F3', shade: '#A6AAAE', face: '#33383D',
+             faceHi: '#424850', guard: '#9BA1A6', cap: '#22262A', well1: '#1B1F23', well2: '#080A0C' },
+  'microbt-h': { body: '#C2C6C9', top: '#E6E8EA', shade: '#969BA0', face: '#2E3338',
+             faceHi: '#3D434A', guard: '#8F969C', cap: '#22262A', well1: '#1A1E22', well2: '#07090B' }
+};
+
+function FanGuard({ cx, s, well }) {
+  const rings = [37, 31, 25, 19, 13];
+  const spokes = [0, 60, 120];
+  return (
+    <g>
+      <circle cx={cx} cy={76} r={41} fill={`url(#${well})`} />
+      <circle cx={cx} cy={76} r={41} fill="none" stroke="#000" strokeWidth={2.4} opacity={0.45} />
+      <circle cx={cx} cy={75} r={40} fill="none" stroke="#fff" strokeWidth={1} opacity={0.13} />
+      {spokes.map((a) => {
+        const r = (a * Math.PI) / 180;
+        return (
+          <line key={a}
+            x1={cx - 40 * Math.cos(r)} y1={76 - 40 * Math.sin(r)}
+            x2={cx + 40 * Math.cos(r)} y2={76 + 40 * Math.sin(r)}
+            stroke={s.guard} strokeWidth={1.3} opacity={0.5} />
+        );
+      })}
+      {rings.map((r, i) => (
+        <circle key={r} cx={cx} cy={76} r={r} fill="none"
+          stroke={s.guard} strokeWidth={1.5} opacity={0.9 - i * 0.07} />
+      ))}
+      <circle cx={cx} cy={76} r={9} fill={s.cap} />
+      <circle cx={cx} cy={75.2} r={9} fill="none" stroke="#fff" strokeWidth={0.9} opacity={0.22} />
+    </g>
+  );
+}
+
+function Port({ cx, label, s, well }) {
+  return (
+    <g>
+      <circle cx={cx} cy={76} r={17} fill={`url(#${well})`} />
+      <circle cx={cx} cy={76} r={17} fill="none" stroke="#4A6E8A" strokeWidth={3} />
+      <circle cx={cx} cy={75.4} r={17} fill="none" stroke="#8FB6D2" strokeWidth={1} opacity={0.5} />
+      <circle cx={cx} cy={76} r={9} fill="#16202A" stroke="#4A6E8A" strokeWidth={1.2} />
+      <text x={cx} y={108} textAnchor="middle" fill={s.guard}
+        fontFamily="IBM Plex Mono, monospace" fontSize={9} letterSpacing={1}>{label}</text>
+    </g>
+  );
+}
+
+function RigDrawing({ rig, className = '' }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const s = SKINS[rig.skin] || SKINS.bitmain;
+  const hydro = rig.cool === 'Hydro';
+  const g = (k) => `${uid}${k}`;
+
+  return (
+    <svg viewBox="0 0 240 152" className={className} role="img"
+      aria-label={`${rig.model}, ${rig.cool.toLowerCase()}-cooled ASIC miner`}>
+      <defs>
+        <linearGradient id={g('b')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={s.top} />
+          <stop offset=".16" stopColor={s.body} />
+          <stop offset=".78" stopColor={s.body} />
+          <stop offset="1" stopColor={s.shade} />
+        </linearGradient>
+        <linearGradient id={g('f')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={s.faceHi} />
+          <stop offset="1" stopColor={s.face} />
+        </linearGradient>
+        <radialGradient id={g('w')} cx=".5" cy=".34" r=".78">
+          <stop offset="0" stopColor={s.well1} />
+          <stop offset="1" stopColor={s.well2} />
+        </radialGradient>
+        <linearGradient id={g('s')} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity=".34" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={g('d')} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#000" stopOpacity="0" />
+          <stop offset=".5" stopColor="#000" stopOpacity=".3" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      <ellipse cx={120} cy={143} rx={104} ry={5.5} fill={`url(#${g('d')})`} />
+      <rect x={10} y={14} width={220} height={122} rx={7} fill={`url(#${g('b')})`} />
+      <rect x={11} y={15} width={218} height={26} rx={6} fill={`url(#${g('s')})`} />
+
+      {/* extruded aluminium fins: a dark groove with a lit edge beside it */}
+      {Array.from({ length: 9 }, (_, i) => 16 + i * 24.2).map((x) => (
+        <g key={x}>
+          <rect x={x} y={20} width={1.6} height={112} fill="#000" opacity={0.13} />
+          <rect x={x + 1.6} y={20} width={1} height={112} fill="#fff" opacity={0.16} />
+        </g>
+      ))}
+
+      <rect x={18} y={22} width={204} height={108} rx={5} fill={`url(#${g('f')})`} />
+
+      {hydro ? (
+        <g>
+          {Array.from({ length: 14 }, (_, i) => 106 + i * 5.6).map((x) => (
+            <g key={x}>
+              <rect x={x} y={52} width={2.4} height={48} fill={s.guard} opacity={0.55} />
+              <rect x={x + 2.4} y={52} width={1} height={48} fill="#000" opacity={0.28} />
+            </g>
+          ))}
+          <Port cx={62} label="IN" s={s} well={g('w')} />
+          <Port cx={178} label="OUT" s={s} well={g('w')} />
+        </g>
+      ) : (
+        <g>
+          <FanGuard cx={70} s={s} well={g('w')} />
+          <FanGuard cx={170} s={s} well={g('w')} />
+        </g>
+      )}
+
+      <rect x={18} y={22} width={204} height={108} rx={5} fill="none" stroke="#000" strokeWidth={1} opacity={0.3} />
+      <rect x={10.5} y={14.5} width={219} height={121} rx={6.5} fill="none" stroke="#000" strokeWidth={1} opacity={0.26} />
+      <rect x={11.5} y={15.5} width={217} height={119} rx={5.5} fill="none" stroke="#fff" strokeWidth={1} opacity={0.3} />
+      <rect x={26} y={118} width={46} height={9} rx={2} fill={s.cap} opacity={0.92} />
+      <text x={30} y={125.2} fill={s.body} fontFamily="IBM Plex Mono, monospace"
+        fontSize={6.4} letterSpacing={1.1}>{rig.brand.toUpperCase()}</text>
+    </svg>
+  );
+}
+
+/* ===== src/components/PayoutChart.jsx ===== */
+/**
+ * Seven days of payout, one series.
+ *
+ * A day that drew an SLA credit is drawn as two steps of the SAME hue rather
+ * than two colours: a second colour here would be a categorical palette, and
+ * a categorical palette needs to survive colour-blind separation checks for a
+ * distinction this small. Same hue, different lightness, plus a marked label
+ * and a tooltip, carries it without that cost.
+ */
+function PayoutChart({ series, onPickDay }) {
+  const { config } = usePlatform();
+  const [hover, setHover] = useState(null);
+  const max = Math.max(...series.map((s) => s.paid));
+  const credited = series.reduce((a, b) => a + b.credit, 0);
+
+  return (
+    <div className="chart-block">
+      <div className="chart" role="img"
+        aria-label={`Daily payout over seven days, ${money(series[0].paid)} to ${money(series[6].paid)} ${config.ticker}`}>
+        {series.map((s, i) => (
+          <button key={s.d} className={'chart-col' + (i === 6 ? ' is-today' : '')}
+            onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
+            onFocus={() => setHover(i)} onBlur={() => setHover(null)}
+            onClick={() => onPickDay && onPickDay(i)}
+            aria-label={`${s.d}: ${money(s.paid)}${s.credit ? `, includes ${money(s.credit)} uptime credit` : ''}`}>
+            {hover === i && (
+              <span className="chart-tip">
+                {s.d} · {money(s.paid)}
+                {s.credit > 0 && <em> incl. {money(s.credit)} credit</em>}
+              </span>
+            )}
+            <span className="chart-bar" style={{ height: `${(s.paid / max) * 100}%` }}>
+              {s.credit > 0 && (
+                <span className="chart-topup" style={{ height: `${(s.credit / s.paid) * 100}%` }} />
+              )}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="chart-axis">
+        {series.map((s, i) => (
+          <span key={s.d} className={i === 6 ? 'is-today' : undefined}>
+            {s.credit > 0 ? '◦ ' : ''}{i === 6 ? 'Today' : s.d}
+          </span>
+        ))}
+      </div>
+
+      {credited > 0 && (
+        <div className="row chart-foot">
+          <span className="eyebrow">{'◦'} Uptime credit applied</span>
+          <span className="mono dim">+{money(credited)} this week</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===== src/components/MachineCard.jsx ===== */
+/**
+ * A buyer is choosing between machines, so the card answers only the three
+ * questions that decision turns on: what does it cost, what does it pay, and
+ * how long until it has paid for itself.
+ *
+ * Hashrate, wattage and J/TH are real and they matter - but they matter to
+ * someone comparing hardware, not to someone deciding to buy. Those live on
+ * the detail page under "Technical details".
+ */
+function MachineCard({ rig, onOpen }) {
+  const { config } = usePlatform();
+  const e = econ(rig, config.splitStandard, config);
+  const months = paybackMonths(rig, config.splitStandard, config);
+  const isShare = rig.kind === 'share';
+
+  return (
+    <button className="machine-card" onClick={() => onOpen(rig.id)}>
+      <div className="row card-top">
+        <div className="stack">
+          <span className="eyebrow">{rig.brand}</span>
+          <h3>{rig.model}</h3>
+        </div>
+        <span className={'pill ' + (isShare ? 'hot' : 'mute')}>
+          {isShare ? 'Part of a machine' : 'Whole machine'}
+        </span>
+      </div>
+
+      <div className="media">
+        <RigDrawing rig={rig} />
+      </div>
+
+      <div className="card-money">
+        <div className="row">
+          <span className="k">Price</span>
+          <span className="v">{round(rig.price)} <small>{config.ticker}</small></span>
+        </div>
+        <div className="row">
+          <span className="k">You earn</span>
+          <span className={'v ' + (e.viable ? 'earn' : 'neg')}>
+            {e.viable ? `${money(e.you * 30.44)} / month` : 'nothing right now'}
+          </span>
+        </div>
+      </div>
+
+      <div className="card-note">
+        {e.viable && months
+          ? <span>Pays for itself in about <b>{months} months</b></span>
+          : <span>Electricity costs more than this machine mines today</span>}
+      </div>
+    </button>
+  );
+}
+
+/* ===== src/components/SplitSelector.jsx ===== */
+/**
+ * Two plans, and the trade between them is a real one: Pro costs more to buy
+ * and pays more every month. If both cost the same, nobody would ever choose
+ * Standard and the control would be theatre - so each option carries its own
+ * price, its own monthly earnings, and how long the extra takes to come back.
+ */
+function SplitSelector({ rig, value, onChange }) {
+  const { config } = usePlatform();
+
+  const build = (share, name, blurb) => {
+    const e = econ(rig, share, config);
+    return { share, name, blurb, price: priceFor(rig, share, config), monthly: e.you * 30.44 };
+  };
+
+  const std = build(config.splitStandard, 'Standard', 'Costs less to start.');
+  const pro = build(config.splitPro, 'Pro', 'Costs more, pays more every month.');
+
+  const extraCost = pro.price - std.price;
+  const extraMonthly = pro.monthly - std.monthly;
+  const breakEven = extraMonthly > 0 ? Math.round(extraCost / extraMonthly) : null;
+
+  return (
+    <div className="stack gap-sm">
+      <span className="eyebrow">Choose your plan</span>
+
+      {[std, pro].map((o) => (
+        <button key={o.name} className="plan-option"
+          aria-pressed={value === o.share} onClick={() => onChange(o.share)}>
+          <span className="plan-head">
+            <span className="plan-name">{o.name}</span>
+            <span className="plan-keep">You keep {Math.round(o.share * 100)}%</span>
+          </span>
+          <span className="plan-numbers">
+            <span className="plan-price">{round(o.price)} <small>{config.ticker}</small></span>
+            <span className="plan-monthly">{money(o.monthly)} / month</span>
+          </span>
+          <span className="plan-blurb">{o.blurb}</span>
+        </button>
+      ))}
+
+      {breakEven && (
+        <p className="small dim">
+          Pro costs {round(extraCost)} {config.ticker} more and earns about {money(extraMonthly)} more
+          a month, so the difference comes back in roughly <b>{breakEven} months</b>. If you plan to
+          sell sooner than that, Standard is the better buy.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ===== src/components/Ledger.jsx ===== */
+function Row({ k, v, tone }) {
+  return (
+    <div className="ledger-row">
+      <span className="k">{k}</span>
+      <span className={'v' + (tone ? ' ' + tone : '')}>{v}</span>
+    </div>
+  );
+}
+
+/**
+ * The arithmetic, shown rather than summarised: mined, minus metered power,
+ * minus fee, equals payout. The proportion bar underneath is accent-vs-neutral
+ * on purpose - it encodes magnitude, not three separate identities.
+ */
+function Ledger({ rig, e, share }) {
+  const { config } = usePlatform();
+  const kwh = (rig.watts / 1000) * 24;
+  return (
+    <div className="stack gap-sm">
+      <Row k={`${rig.coin} mined @ ${hashpriceLabel(rig, config)}`} v={money(e.gross)} />
+      <Row k={`Power · ${kwh.toFixed(1)} kWh @ $${config.powerRate.toFixed(3)}`}
+        v={`− ${money(e.power)}`} tone="dim" />
+      <Row k={`Platform fee · ${Math.round((1 - share) * 100)}% of net`}
+        v={`− ${money(e.fee)}`} tone="dim" />
+      <hr className="rule" />
+      <div className="ledger-row total">
+        <span className="k">Your payout</span>
+        <span className="v">{money(e.you !== undefined ? e.you : e.paid)} {config.ticker}</span>
+      </div>
+
+      <div className="prop" role="img"
+        aria-label={`Of ${money(e.gross)} mined: ${money(e.you)} yours, ${money(e.power)} power, ${money(e.fee)} platform fee`}>
+        <i className="yours" style={{ width: `${(e.you / e.gross) * 100}%` }} />
+        <i className="cost" style={{ width: `${(e.power / e.gross) * 100}%` }} />
+        <i className="fee" style={{ width: `${(e.fee / e.gross) * 100}%` }} />
+      </div>
+      <div className="row">
+        <span className="eyebrow">Yours {Math.round((e.you / e.gross) * 100)}%</span>
+        <span className="eyebrow">Power {Math.round((e.power / e.gross) * 100)}%</span>
+        <span className="eyebrow">Fee {Math.round((e.fee / e.gross) * 100)}%</span>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/components/Header.jsx ===== */
+const NAV = [
+  ['machines', 'Machines'],
+  ['dashboard', 'Dashboard'],
+  ['settlement', 'Settlement'],
+  ['wallet', 'Wallet'],
+  ['referrals', 'Referrals']
+];
+
+const ICON = {
+  light: <path d="M12 7.8a4.2 4.2 0 100 8.4 4.2 4.2 0 000-8.4zM12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4" />,
+  system: <path d="M3.5 5h17v11h-17zM8.5 20.5h7" />,
+  dark: <path d="M20.5 14.4A8.7 8.7 0 019.6 3.5a8.7 8.7 0 1010.9 10.9z" />
+};
+
+function Header({ page, go, theme, setTheme }) {
+  const { config } = usePlatform();
+  return (
+    <header className="site-header">
+      <div className="shell header-inner">
+        <button className="brand" onClick={() => go('machines')} aria-label="Hashyard home">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="1.5" y="5" width="21" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+            <circle cx="8" cy="12" r="3.1" stroke="var(--accent)" strokeWidth="1.6" />
+            <circle cx="16" cy="12" r="3.1" stroke="var(--accent)" strokeWidth="1.6" />
+          </svg>
+          <span>HASH<em>YARD</em></span>
+        </button>
+
+        <nav className="site-nav" aria-label="Main">
+          {NAV.map(([id, label]) => (
+            <button key={id} onClick={() => go(id)}
+              aria-current={page === id ? 'page' : undefined}>{label}</button>
+          ))}
+        </nav>
+
+        <div className="header-right">
+          <button className="balance-chip" onClick={() => go('wallet')}>
+            <span className="k">Balance</span>
+            <span className="v">{money(ME.balance)} {config.ticker}</span>
+          </button>
+
+          <div className="themer" role="group" aria-label="Appearance">
+            {['light', 'system', 'dark'].map((t) => (
+              <button key={t} onClick={() => setTheme(t)} title={t}
+                aria-pressed={theme === t} aria-label={t}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{ICON[t]}</svg>
+              </button>
+            ))}
+          </div>
+
+          <span className="avatar" title={ME.name}>{ME.initials}</span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ===== src/pages/Machines.jsx ===== */
+const KIND_FILTERS = [
+  ['all', 'All'],
+  ['share', 'Shares'],
+  ['unit', 'Machines']
+];
+
+const SORTS = [
+  ['price', 'Price'],
+  ['yield', 'Daily net'],
+  ['eff', 'Efficiency']
+];
+
+function Machines({ go }) {
+  const { config } = usePlatform();
+  const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('price');
+
+  const rigs = useMemo(() => {
+    const list = RIGS.filter((r) => filter === 'all' || r.kind === filter);
+    const key = {
+      price: (r) => r.price,
+      yield: (r) => -econ(r, config.splitStandard, config).you,
+      eff: (r) => (r.unit === 'TH/s' ? r.watts / r.hash : r.watts / (r.hash * 1000))
+    }[sort];
+    return [...list].sort((a, b) => key(a) - key(b));
+  }, [filter, sort, config]);
+
+  const cheapest = Math.min(...RIGS.map((r) => r.price));
+
+  return (
+    <div className="page">
+      <section className="hero">
+        <div className="hero-copy">
+          <span className="eyebrow">Hosted mining · {config.network}</span>
+          <h1>Own the machine. Keep what it mines.</h1>
+          <p>
+            Buy a whole ASIC or a share of one, racked in Kazakhstan and Paraguay.
+            You are paid every morning in {config.ticker} — your machine&apos;s real output,
+            less its metered power, at the split you choose. From {round(cheapest)} {config.ticker}.
+          </p>
+          <div className="hero-stats">
+            <div><span className="n">{RIGS.length}</span><span className="l">machines listed</span></div>
+            <div><span className="n">{Math.round(config.uptimeSLA * 100)}%</span><span className="l">uptime guarantee</span></div>
+            <div><span className="n">${money(config.powerRate).slice(0, 5)}</span><span className="l">per kWh, all-in</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div className="toolbar">
+        <div className="seg">
+          {KIND_FILTERS.map(([k, l]) => (
+            <button key={k} aria-pressed={filter === k} onClick={() => setFilter(k)}>
+              {l}<b>{k === 'all' ? RIGS.length : RIGS.filter((r) => r.kind === k).length}</b>
+            </button>
+          ))}
+        </div>
+        <label className="sorter">
+          <span className="eyebrow">Sort</span>
+          <select value={sort} onChange={(ev) => setSort(ev.target.value)}>
+            {SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <p className="note-line">
+        {filter === 'share'
+          ? `A share is a hashrate slice of a machine already racked — same hardware, same tariff, same split.`
+          : filter === 'unit'
+            ? `A whole machine, racked under your name with its own serial and metered PDU port.`
+            : `Daily figures are today's real output less power at $${config.powerRate.toFixed(3)}/kWh, at the Standard ${Math.round(config.splitStandard * 100)}/${Math.round((1 - config.splitStandard) * 100)} split. They move with hashprice.`}
+      </p>
+
+      <div className="grid machines-grid">
+        {rigs.map((r) => <MachineCard key={r.id} rig={r} onOpen={(id) => go('machine', id)} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/pages/MachineDetail.jsx ===== */
+function MachineDetail({ id, split, setSplit, go }) {
+  const { config } = usePlatform();
+  const rig = byId(id);
+  if (!rig) {
+    return (
+      <div className="page narrow">
+        <h1>Machine not found</h1>
+        <button className="btn" onClick={() => go('machines')}>Back to machines</button>
+      </div>
+    );
+  }
+
+  const e = econ(rig, split, config);
+  const ef = efficiency(rig);
+  const share = rig.kind === 'share';
+  const price = priceFor(rig, split, config);
+  const months = paybackMonths(rig, split, config);
+
+  return (
+    <div className="page">
+      <button className="crumb" onClick={() => go('machines')}>← All machines</button>
+
+      <div className="detail">
+        <div className="detail-main">
+          <div className="media large"><RigDrawing rig={rig} /></div>
+
+          <div className="stack gap-sm">
+            <span className="eyebrow">{rig.brand} · {rig.algo} · mines {rig.coin} · {rig.cool}-cooled</span>
+            <h1>{rig.model}</h1>
+            <p className="lede">Hosted at {rig.site}.</p>
+          </div>
+
+          {share && (
+            <div className="panel stack gap-sm">
+              <div className="row">
+                <span className="eyebrow">What you are buying</span>
+                <span className="mono accent">{((rig.hash / rig.of.hash) * 100).toFixed(1)}% of a machine</span>
+              </div>
+              <div className="frac">
+                <span className="track"><i style={{ width: `${((rig.hash / rig.of.hash) * 100).toFixed(1)}%` }} /></span>
+                <span className="lbl">{rig.hash} of {rig.of.hash} {rig.unit}</span>
+              </div>
+              <p className="small">
+                You are buying a share of one <b>{rig.of.model}</b> that is already running in our
+                facility. You pay the same rate per unit of mining power as someone buying the whole
+                machine, and electricity is charged the same way, so you earn the same percentage on
+                your money. You simply own a smaller piece.
+              </p>
+            </div>
+          )}
+
+          <div className="panel">
+            <div className="stack gap-sm">
+              <h2>Technical details</h2>
+              <p className="small dim">
+                For comparing hardware. You do not need any of this to buy, because the earnings
+                above already account for it.
+              </p>
+            </div>
+            <dl className="specs">
+              <div><dt>Mining power</dt><dd>{rig.hash}<small>{rig.unit}</small></dd></div>
+              <div><dt>Electricity used</dt><dd>{((rig.watts / 1000) * 24).toFixed(0)}<small>kWh / day</small></dd></div>
+              <div><dt>Power rating</dt><dd>{round(rig.watts)}<small>watts</small></dd></div>
+              <div><dt>Efficiency</dt><dd>{ef.v}<small>{ef.u}</small></dd></div>
+            </dl>
+            <p className="small dim">
+              Efficiency is electricity used per unit of mining power. Lower is better, and it is
+              the number that decides whether a machine stays profitable when prices fall.
+            </p>
+          </div>
+
+          <div className="panel">
+            <h2>Where your money comes from</h2>
+            <p className="small dim">
+              What this machine mined today, minus the electricity it used and our fee.
+            </p>
+            <Ledger rig={rig} e={e} share={split} />
+          </div>
+        </div>
+
+        <aside className="detail-side">
+          <div className="panel buy-panel">
+            <div className="row">
+              <span className="eyebrow">Price</span>
+              <span className={'pill ' + (rig.stock > 10 ? 'mute' : 'hot')}>
+                {rig.stock > 0 ? `${rig.stock} available` : 'Sold out'}
+              </span>
+            </div>
+            <div className="big-price">{round(price)} <small>{config.ticker}</small></div>
+
+            <SplitSelector rig={rig} value={split} onChange={setSplit} />
+
+            <dl className="specs two">
+              <div><dt>You earn</dt><dd>{money(e.you * 30.44)}<small>per month</small></dd></div>
+              <div><dt>Pays for itself in</dt><dd>{months || '—'}<small>months</small></dd></div>
+            </dl>
+
+            {e.viable ? (
+              <>
+                <div className="notice info">
+                  <b>We guarantee it runs {Math.round(config.uptimeSLA * 100)}% of the time.</b> If
+                  your machine is down more than that, we pay you for the missing hours ourselves.
+                  What nobody can promise is the bitcoin price — when it falls, everyone&apos;s
+                  earnings fall, ours included.
+                </div>
+                <button className="btn primary" onClick={() => go('checkout', rig.id)}>
+                  Buy for {round(price)} {config.ticker}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="notice warn">
+                  <b>Not offered.</b> At {ef.v} {ef.u} this machine draws {money(e.power)} of power
+                  a day and mines {money(e.gross)} — it loses {money(Math.abs(e.net))} a day before
+                  anyone&apos;s split. We keep it listed so you can see what efficiency decides.
+                </div>
+                <button className="btn" onClick={() => go('machines')}>Back to machines</button>
+              </>
+            )}
+
+            <p className="small dim">
+              Estimates track network difficulty and coin price and will change daily, up and down.
+              Payback assumes today&apos;s hashprice holds, which it will not. Hardware depreciates.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/pages/Checkout.jsx ===== */
+function Checkout({ id, split, setSplit, go }) {
+  const { config } = usePlatform();
+  const [done, setDone] = useState(false);
+  const rig = byId(id);
+  if (!rig) return null;
+
+  const e = econ(rig, split, config);
+  const price = priceFor(rig, split, config);
+  const after = ME.balance - price;
+  const short = after < 0;
+
+  if (done) {
+    return (
+      <div className="page narrow">
+        <div className="panel success">
+          <span className="tick" aria-hidden="true">✓</span>
+          <h1>{rig.kind === 'share' ? 'Share allocated' : 'Machine is yours'}</h1>
+          <p className="lede">
+            {rig.model} · {Math.round(split * 100)}/{Math.round((1 - split) * 100)} split.
+            {rig.kind === 'share' ? ' Your slice is already hashing.' : ' Racking begins now.'}
+          </p>
+          <dl className="specs two">
+            <div><dt>Assigned unit</dt><dd>21P-9107-KZ</dd></div>
+            <div><dt>Hosting site</dt><dd>{rig.site}</dd></div>
+            <div><dt>Powered on</dt><dd>{rig.kind === 'share' ? 'Now' : 'Within 24 h'}</dd></div>
+            <div><dt>First settlement</dt><dd>10 Sep, 00:07 UTC</dd></div>
+          </dl>
+          <div className="row gap">
+            <button className="btn primary" onClick={() => go('dashboard')}>View my rigs</button>
+            <button className="btn" onClick={() => go('machines')}>Buy another</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page narrow">
+      <button className="crumb" onClick={() => go('machine', rig.id)}>← Back to {rig.model}</button>
+      <h1>Confirm purchase</h1>
+
+      <div className="panel row gap">
+        <div className="media thumb"><RigDrawing rig={rig} /></div>
+        <div className="stack">
+          <h3>{rig.model}</h3>
+          <span className="mono dim small">{rig.hash} {rig.unit} · {rig.site}</span>
+        </div>
+      </div>
+
+      <div className="panel">
+        <SplitSelector rig={rig} value={split} onChange={setSplit} />
+      </div>
+
+      <div className="panel stack gap-sm">
+        <div className="ledger-row">
+          <span className="k">Machine, {Math.round(split * 100)}% plan</span>
+          <span className="v">{money(price)}</span>
+        </div>
+        <div className="ledger-row"><span className="k">Racking &amp; setup</span><span className="v ok">Included</span></div>
+        <div className="ledger-row"><span className="k">Hosting deposit</span><span className="v ok">None</span></div>
+        <hr className="rule" />
+        <div className="ledger-row total"><span className="k">Pay from balance</span><span className="v">{money(price)} {config.ticker}</span></div>
+      </div>
+
+      <div className="panel stack gap-sm">
+        <div className="ledger-row"><span className="k">Balance now</span><span className="v">{money(ME.balance)}</span></div>
+        <div className="ledger-row">
+          <span className="k">Balance after</span>
+          <span className={'v' + (short ? ' neg' : '')}>{money(after)}</span>
+        </div>
+      </div>
+
+      {short ? (
+        <>
+          <div className="notice warn">
+            <b>You are {money(Math.abs(after))} {config.ticker} short.</b> Deposit over {config.network} to
+            cover the difference — machines are held for 30 minutes.
+          </div>
+          <div className="row gap">
+            <button className="btn primary" onClick={() => go('wallet')}>
+              Deposit {money(Math.abs(after))} {config.ticker}
+            </button>
+            <button className="btn" onClick={() => go('machines')}>Choose another</button>
+          </div>
+        </>
+      ) : (
+        <button className="btn primary wide" onClick={() => setDone(true)}>
+          Confirm &amp; start hashing
+        </button>
+      )}
+
+      <p className="small dim">
+        Your unit is powered on within 24 hours and settles from its first full day.
+        Payouts begin at {money(e.you)} {config.ticker}/day at today&apos;s hashprice.
+      </p>
+    </div>
+  );
+}
+
+/* ===== src/pages/Dashboard.jsx ===== */
+function Tile({ label, value, unit, sub, tone }) {
+  return (
+    <div className="tile">
+      <span className="eyebrow">{label}</span>
+      <span className={'tile-value' + (tone ? ' ' + tone : '')}>
+        {value}{unit && <small> {unit}</small>}
+      </span>
+      {sub && <span className="tile-sub">{sub}</span>}
+    </div>
+  );
+}
+
+function Dashboard({ go, onPickDay }) {
+  const { config, myRig, myEcon, series, weekTotal, weekCredit, weekUptime, lifetime } = usePlatform();
+  const metSla = weekUptime >= config.uptimeSLA;
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">Good evening</span>
+          <h1>{ME.name}</h1>
+        </div>
+        <span className="pill run"><i className="dot" />{ME.owned.qty} rig online</span>
+      </div>
+
+      <div className="grid tiles">
+        <Tile label="Available balance" value={money(ME.balance)} unit={config.ticker}
+          sub={`+ ${money(ME.credit)} hosting credit`} />
+        <Tile label="Paid this week" value={money(weekTotal)} unit={config.ticker} tone="accent"
+          sub={weekCredit > 0 ? `incl. ${money(weekCredit)} uptime credit` : 'no credits needed'} />
+        <Tile label="Lifetime payouts" value={money(lifetime)} unit={config.ticker}
+          sub={`over ${ME.owned.days} days`} />
+        <Tile label="Uptime, 7 days" value={(weekUptime * 100).toFixed(1)} unit="%"
+          tone={metSla ? 'ok' : 'warn'}
+          sub={metSla ? 'SLA met' : `below ${Math.round(config.uptimeSLA * 100)}% SLA — credited`} />
+      </div>
+
+      <div className="split-2">
+        <section className="panel">
+          <div className="row">
+            <h2>Daily payouts</h2>
+            <span className="mono accent">+{money(weekTotal)}</span>
+          </div>
+          <PayoutChart series={series} onPickDay={onPickDay} />
+          <p className="small dim">Select any bar to open that day&apos;s settlement.</p>
+        </section>
+
+        <section className="panel stack gap-sm">
+          <div className="row">
+            <h2>Uptime guarantee</h2>
+            <span className={'pill ' + (metSla ? 'run' : 'hot')}>
+              <i className="dot" />{metSla ? 'Met' : 'Credited'}
+            </span>
+          </div>
+          <div className="frac">
+            <span className="track"><i style={{ width: `${(weekUptime * 100).toFixed(1)}%` }} /></span>
+            <span className="lbl">SLA {Math.round(config.uptimeSLA * 100)}%</span>
+          </div>
+          <div className="ledger-row">
+            <span className="k">Credited this week</span>
+            <span className="v accent">+ {money(weekCredit)} {config.ticker}</span>
+          </div>
+          <p className="small dim">
+            Covers downtime only. Your payout still moves with hashprice — that risk is yours,
+            the same as owning the machine outright.
+          </p>
+        </section>
+      </div>
+
+      <section className="panel">
+        <h2>Your hardware</h2>
+        <div className="rig-row">
+          <div className="media thumb"><RigDrawing rig={myRig} /></div>
+          <div className="stack">
+            <h3>{myRig.model}</h3>
+            <span className="mono dim small">SN {ME.owned.serial} · {myRig.site}</span>
+            <span className="pill run"><i className="dot" />Hashing</span>
+          </div>
+          <div className="stack end">
+            <span className="yield">+{money(myEcon.you)}</span>
+            <span className="eyebrow">per day, net</span>
+          </div>
+        </div>
+        <dl className="specs four">
+          <div><dt>Live hashrate</dt><dd className="ok">231.6<small>TH/s</small></dd></div>
+          <div><dt>Board temp</dt><dd>64<small>°C</small></dd></div>
+          <div><dt>Fan</dt><dd>4250<small>rpm</small></dd></div>
+          <div><dt>Split</dt><dd>{Math.round(ME.owned.share * 100)}/{Math.round((1 - ME.owned.share) * 100)}</dd></div>
+        </dl>
+        <div className="row gap">
+          <button className="btn primary" onClick={() => go('settlement')}>Daily settlements</button>
+          <button className="btn" onClick={() => go('machines')}>Add another machine</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ===== src/pages/Settlement.jsx ===== */
+function Settlement({ day, setDay }) {
+  const { config, myRig } = usePlatform();
+  const share = ME.owned.share;
+  const s = dayEcon(WEEK[day], myRig, share, config);
+  const hours = s.up * 24;
+  const margin = s.fee - s.credit;
+  const kwh = (myRig.watts / 1000) * 24 * s.up;
+
+  return (
+    <div className="page narrow">
+      <h1>Settlement</h1>
+
+      <div className="seg wide">
+        {WEEK.map((w, i) => (
+          <button key={w.d} aria-pressed={i === day} onClick={() => setDay(i)}>{w.d}</button>
+        ))}
+      </div>
+
+      <div className="stack gap-sm">
+        <span className="eyebrow">{s.date} 2026 · 00:00–23:59 UTC</span>
+        <div className="big-price accent">+{money(s.paid)} <small>{config.ticker}</small></div>
+        <span className="mono dim small">Credited to balance at 00:07 UTC</span>
+      </div>
+
+      <div className="panel stack gap-sm">
+        <div className="ledger-row">
+          <span className="k">{myRig.coin} mined @ {hashpriceLabel(myRig, config)} × {s.hp.toFixed(2)}</span>
+          <span className="v">{money(s.gross)}</span>
+        </div>
+        <div className="ledger-row">
+          <span className="k">Power · {kwh.toFixed(1)} kWh @ ${config.powerRate.toFixed(3)}</span>
+          <span className="v dim">− {money(s.power)}</span>
+        </div>
+        <div className="ledger-row">
+          <span className="k">Platform fee · {Math.round((1 - share) * 100)}% of net</span>
+          <span className="v dim">− {money(s.fee)}</span>
+        </div>
+        {s.credit > 0 && (
+          <div className="ledger-row">
+            <span className="k accent">Uptime credit · SLA {Math.round(config.uptimeSLA * 100)}%</span>
+            <span className="v accent">+ {money(s.credit)}</span>
+          </div>
+        )}
+        <hr className="rule" />
+        <div className="ledger-row total">
+          <span className="k">Your payout</span>
+          <span className="v">{money(s.paid)} {config.ticker}</span>
+        </div>
+      </div>
+
+      <div className="panel stack gap-sm">
+        <div className="row">
+          <span className="eyebrow">Uptime</span>
+          <span className={'pill ' + (s.up >= config.uptimeSLA ? 'run' : 'hot')}>
+            <i className="dot" />{(s.up * 100).toFixed(1)}% · {Math.floor(hours)}h {Math.round((hours % 1) * 60)}m
+          </span>
+        </div>
+        <div className="frac">
+          <span className="track"><i style={{ width: `${(s.up * 100).toFixed(1)}%` }} /></span>
+          <span className="lbl">SLA {Math.round(config.uptimeSLA * 100)}%</span>
+        </div>
+        <div className="ledger-row"><span className="k">Event</span><span className="v small">{s.note}</span></div>
+      </div>
+
+      {s.credit > 0 && (
+        <>
+          <div className="notice info">
+            <b>The guarantee paid {money(s.credit)} today.</b> Your machine hashed {(s.up * 100).toFixed(1)}%
+            of the day; we topped the payout up to what {Math.round(config.uptimeSLA * 100)}% uptime would
+            have earned at today&apos;s hashprice. It covers downtime only — never a fall in hashprice.
+          </div>
+
+          <div className="panel stack gap-sm">
+            <span className="eyebrow">Who paid for it</span>
+            <div className="ledger-row"><span className="k">Hashyard&apos;s fee today</span><span className="v">{money(s.fee)}</span></div>
+            <div className="ledger-row"><span className="k">Credit paid to you</span><span className="v">− {money(s.credit)}</span></div>
+            <hr className="rule" />
+            <div className="ledger-row">
+              <span className="k"><b>Hashyard&apos;s margin</b></span>
+              <span className={'v ' + (margin < 0 ? 'neg' : 'ok')}>
+                {margin < 0 ? '−' : '+'} {money(Math.abs(margin))}
+              </span>
+            </div>
+            <p className="small dim">
+              Claims come out of our fee, not a separate reserve. Below {(breakEvenUptime(share, config) * 100).toFixed(1)}%
+              uptime — your split times the SLA — we earn nothing and pay the difference ourselves.
+              We show it so you can check the guarantee has a real source.
+            </p>
+          </div>
+        </>
+      )}
+
+      <div className="panel stack gap-sm">
+        <span className="eyebrow">How it was measured</span>
+        <div className="ledger-row"><span className="k">Accepted shares</span><span className="v">{(myRig.hash * 0.99 * s.up).toFixed(1)} TH/s avg</span></div>
+        <div className="ledger-row"><span className="k">Pool</span><span className="v">Braiins · FPPS</span></div>
+        <div className="ledger-row"><span className="k">Metered draw</span><span className="v">{kwh.toFixed(1)} kWh</span></div>
+      </div>
+
+      <p className="small dim">
+        Settlement is FPPS: you are paid for the shares your machine submitted, not for blocks the
+        pool happened to find. Power is metered at the PDU, not estimated.
+      </p>
+    </div>
+  );
+}
+
+/* ===== src/pages/Wallet.jsx ===== */
+const TABS = [
+  ['deposit', 'Deposit'],
+  ['withdraw', 'Withdraw'],
+  ['activity', 'Activity']
+];
+
+const TX_FILTERS = [
+  ['all', 'All'],
+  ['earn', 'Earnings'],
+  ['chain', 'On-chain'],
+  ['buy', 'Purchases']
+];
+
+/** A placeholder mark, not a scannable code. Deterministic from the address. */
+function QrMark({ seed }) {
+  const N = 25;
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const cells = [];
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const finder = (x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9);
+      if (!finder && rnd() > 0.5) cells.push([x, y]);
+    }
+  }
+  const Finder = ({ x, y }) => (
+    <g>
+      <rect x={x * 4} y={y * 4} width={28} height={28} fill="#000" />
+      <rect x={(x + 1) * 4} y={(y + 1) * 4} width={20} height={20} fill="#fff" />
+      <rect x={(x + 2) * 4} y={(y + 2) * 4} width={12} height={12} fill="#000" />
+    </g>
+  );
+  return (
+    <svg className="qr" viewBox="0 0 100 100" aria-hidden="true">
+      <rect width="100" height="100" fill="#fff" />
+      {cells.map(([x, y]) => <rect key={`${x}-${y}`} x={x * 4} y={y * 4} width={4} height={4} fill="#000" />)}
+      <Finder x={0} y={0} /><Finder x={N - 7} y={0} /><Finder x={0} y={N - 7} />
+    </svg>
+  );
+}
+
+function Wallet() {
+  const { config, tx } = usePlatform();
+  const [tab, setTab] = useState('deposit');
+  const [pct, setPct] = useState(1);
+  const [filter, setFilter] = useState('all');
+
+  const amount = ME.balance * pct;
+  const below = amount < config.withdrawMin;
+  const rows = tx.filter((t) => filter === 'all' || t.on === filter);
+  const earned = tx.filter((t) => t.on === 'earn').reduce((a, b) => a + b.amt, 0);
+
+  return (
+    <div className="page narrow">
+      <h1>Wallet</h1>
+
+      <div className="grid tiles two">
+        <div className="tile">
+          <span className="eyebrow">Available balance</span>
+          <span className="tile-value">{money(ME.balance)}<small> {config.ticker}</small></span>
+          <span className="tile-sub">+ {money(ME.credit)} hosting credit (not withdrawable)</span>
+        </div>
+        <div className="tile">
+          <span className="eyebrow">Earned to date</span>
+          <span className="tile-value accent">{money(earned)}<small> {config.ticker}</small></span>
+          <span className="tile-sub">payouts, uptime credits, referral share</span>
+        </div>
+      </div>
+
+      <div className="seg wide">
+        {TABS.map(([k, l]) => (
+          <button key={k} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</button>
+        ))}
+      </div>
+
+      {tab === 'deposit' && (
+        <>
+          <div className="notice info">
+            <b>First deposit bonus.</b> We add {Math.round(config.firstDeposit * 100)}% of your first
+            deposit as hosting credit — up to {config.firstDepCap} {config.ticker} — applied against
+            your electricity and platform fees.
+          </div>
+          <div className="panel deposit-panel">
+            <span className="pill mute">{config.network}</span>
+            <QrMark seed={ME.address} />
+            <div className="field">
+              <label>Your deposit address</label>
+              <span className="val">{ME.address}</span>
+            </div>
+            <button className="btn">Copy address</button>
+          </div>
+          <div className="notice warn">
+            <b>{config.network} only.</b> Sending {config.ticker} over ERC-20, BEP-20 or any other
+            network to this address will lose the funds permanently. There is no recovery.
+          </div>
+          <div className="panel stack gap-sm">
+            <div className="ledger-row"><span className="k">Minimum deposit</span><span className="v">10.00 {config.ticker}</span></div>
+            <div className="ledger-row"><span className="k">Confirmations</span><span className="v">19</span></div>
+            <div className="ledger-row"><span className="k">Typical arrival</span><span className="v">~1 min</span></div>
+            <div className="ledger-row"><span className="k">Deposit fee</span><span className="v ok">None</span></div>
+          </div>
+        </>
+      )}
+
+      {tab === 'withdraw' && (
+        <>
+          <div className="panel stack center">
+            <span className="eyebrow">Amount</span>
+            <div className="big-price">{money(amount)}</div>
+            <span className="mono dim small">of {money(ME.balance)} available · {config.network}</span>
+            <div className="row gap wide-row">
+              {[['25%', 0.25], ['50%', 0.5], ['Max', 1]].map(([l, v]) => (
+                <button key={l} className="btn" aria-pressed={pct === v} onClick={() => setPct(v)}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="field">
+            <label>Destination address</label>
+            <span className="val">{ME.payoutAddress}</span>
+          </div>
+          <div className="panel stack gap-sm">
+            <div className="ledger-row"><span className="k">You withdraw</span><span className="v">{money(amount)}</span></div>
+            <div className="ledger-row"><span className="k">Network fee</span><span className="v dim">− {money(config.withdrawFee)}</span></div>
+            <hr className="rule" />
+            <div className="ledger-row total">
+              <span className="k">They receive</span>
+              <span className="v">{money(Math.max(0, amount - config.withdrawFee))} {config.ticker}</span>
+            </div>
+          </div>
+          <div className="notice warn">
+            Check the address character by character. {config.network} transfers are irreversible and
+            cannot be recalled by Hashyard or by Tron.
+          </div>
+          <button className="btn primary wide" disabled={below}>
+            {below ? `Minimum is ${money(config.withdrawMin)} ${config.ticker}` : `Withdraw ${money(amount)} ${config.ticker}`}
+          </button>
+        </>
+      )}
+
+      {tab === 'activity' && (
+        <>
+          <div className="seg wide">
+            {TX_FILTERS.map(([k, l]) => (
+              <button key={k} aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>
+            ))}
+          </div>
+          <table className="table">
+            <thead>
+              <tr><th>Type</th><th>Detail</th><th>When</th><th className="right">Amount</th></tr>
+            </thead>
+            <tbody>
+              {rows.map((t, i) => (
+                <tr key={i}>
+                  <td>{TX_LABEL[t.t]}</td>
+                  <td className="mono small dim">{t.note}{t.hash ? ` · ${t.hash}` : ''}</td>
+                  <td className="mono small dim">{t.d}</td>
+                  <td className={'right mono ' + (t.amt > 0 ? 'accent' : 'dim')}>
+                    {t.amt > 0 ? '+' : '−'} {money(Math.abs(t.amt))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="small dim">
+            On-chain rows carry a Tron transaction hash you can verify on Tronscan yourself.
+            Everything else settles inside Hashyard.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ===== src/pages/Referrals.jsx ===== */
+function Referrals() {
+  const { config } = usePlatform();
+  const ownerPct = Math.round(config.splitStandard * 100);
+  const platformPct = Math.round((1 - config.splitStandard) * 100);
+  const yourCut = (1 - config.splitStandard) * config.referralShare * 100;
+  const theirs = platformPct - yourCut;
+
+  return (
+    <div className="page narrow">
+      <h1>Invite &amp; earn</h1>
+
+      <div className="grid tiles two">
+        <div className="tile">
+          <span className="eyebrow">Earned from referrals</span>
+          <span className="tile-value accent">{money(REF_TOTAL)}<small> {config.ticker}</small></span>
+          <span className="tile-sub">{ME.invites.filter((i) => i.live).length} active · paid daily</span>
+        </div>
+        <div className="tile">
+          <span className="eyebrow">Your cut</span>
+          <span className="tile-value">{Math.round(config.referralShare * 100)}<small> %</small></span>
+          <span className="tile-sub">of our fee, for as long as their machine runs</span>
+        </div>
+      </div>
+
+      <div className="panel stack gap-sm">
+        <h2>How it pays</h2>
+        <p>
+          When someone you invited runs a machine, you get{' '}
+          <b className="accent">{Math.round(config.referralShare * 100)}% of the platform&apos;s fee</b> on
+          it — every day, for as long as it hashes. It comes out of our cut of real mining revenue,
+          never out of their deposit and never out of their payout.
+        </p>
+        <div className="prop" role="img"
+          aria-label={`Of net revenue: ${ownerPct}% to the owner, ${theirs.toFixed(0)}% to Hashyard, ${yourCut.toFixed(0)}% to you`}>
+          <i className="yours" style={{ width: `${ownerPct}%` }} />
+          <i className="cost" style={{ width: `${theirs}%` }} />
+          <i className="fee" style={{ width: `${yourCut}%` }} />
+        </div>
+        <div className="row">
+          <span className="eyebrow">Owner {ownerPct}%</span>
+          <span className="eyebrow">Hashyard {theirs.toFixed(0)}%</span>
+          <span className="eyebrow">You {yourCut.toFixed(0)}%</span>
+        </div>
+      </div>
+
+      <div className="field">
+        <label>Your invite link</label>
+        <span className="val">hashyard.io/r/{ME.handle}</span>
+      </div>
+      <div className="row gap">
+        <button className="btn">Copy link</button>
+        <button className="btn primary">Share</button>
+      </div>
+
+      <h2 className="section-head">Invited · {ME.invites.length}</h2>
+      <table className="table">
+        <thead>
+          <tr><th>Person</th><th>Joined</th><th>Machines</th><th className="right">Earned</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {ME.invites.map((v) => (
+            <tr key={v.n}>
+              <td><span className="avatar sm">{v.i}</span> {v.n}</td>
+              <td className="mono small dim">{v.since}</td>
+              <td className="mono small">{v.rigs || '—'}</td>
+              <td className={'right mono ' + (v.earned ? 'accent' : 'dim')}>
+                {v.earned ? '+' + money(v.earned) : '—'}
+              </td>
+              <td><span className={'pill ' + (v.live ? 'run' : 'mute')}>{v.live ? 'Earning' : 'Idle'}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p className="small dim">
+        No bonus is paid for a deposit on its own — only for hardware that actually runs. A referral
+        who never buys a machine earns nothing, for you or for us. That is what keeps this an
+        affiliate programme rather than a recruitment scheme.
+      </p>
+    </div>
+  );
+}
+
+/* ===== src/admin/AdminLayout.jsx ===== */
+const SECTIONS = [
+  ['admin', 'Overview'],
+  ['admin-fleet', 'Fleet'],
+  ['admin-withdrawals', 'Withdrawals'],
+  ['admin-users', 'Customers'],
+  ['admin-pricing', 'Pricing & risk']
+];
+
+function AdminLayout({ page, go, children }) {
+  const { withdrawals, fleet, dirty } = usePlatform();
+  const pending = withdrawals.filter((w) => w.status === 'pending').length;
+  const down = fleet.filter((r) => !r.online).length;
+
+  const badge = { 'admin-withdrawals': pending || null, 'admin-fleet': down || null };
+
+  return (
+    <div className="admin">
+      <aside className="admin-nav">
+        <div className="admin-brand">
+          <span className="eyebrow">Hashyard</span>
+          <strong>Operator console</strong>
+        </div>
+        <nav>
+          {SECTIONS.map(([id, label]) => (
+            <button key={id} onClick={() => go(id)} aria-current={page === id ? 'page' : undefined}>
+              <span>{label}</span>
+              {badge[id] ? <em className="count">{badge[id]}</em> : null}
+            </button>
+          ))}
+        </nav>
+        {dirty && (
+          <div className="admin-dirty">
+            Live config edited — customer pages are showing your values.
+          </div>
+        )}
+        <button className="admin-exit" onClick={() => go('machines')}>← Back to the site</button>
+      </aside>
+      <div className="admin-main">{children}</div>
+    </div>
+  );
+}
+
+/* ===== src/admin/Overview.jsx ===== */
+/**
+ * The operator's daily P&L, computed from the same functions the customer
+ * pages use. Fee income and SLA liability come out of one model, so the
+ * margin here can never disagree with what a customer is shown.
+ */
+function Overview({ go }) {
+  const { config, fleet, withdrawals, users, orders } = usePlatform();
+
+  const kpi = useMemo(() => {
+    let hash = 0, watts = 0, gross = 0, power = 0, fee = 0, credit = 0, owed = 0;
+    for (const unit of fleet) {
+      const rig = byId(unit.rigId);
+      if (!rig) continue;
+      const share = unit.owner === 'pool' ? 1 : config.splitStandard;
+      const day = dayEcon({ hp: 1, up: unit.online ? unit.uptime : 0 }, rig, share, config);
+      hash += rig.unit === 'TH/s' ? rig.hash * (unit.online ? unit.uptime : 0) : 0;
+      watts += unit.online ? rig.watts : 0;
+      gross += day.gross;
+      power += day.power;
+      owed += day.paid;
+      if (unit.owner !== 'pool') {
+        fee += day.fee;
+        credit += day.credit;
+      }
+    }
+    return { hash, watts, gross, power, fee, credit, owed, margin: fee - credit };
+  }, [fleet, config]);
+
+  const pending = withdrawals.filter((w) => w.status === 'pending');
+  const pendingValue = pending.reduce((a, b) => a + b.amount, 0);
+  const down = fleet.filter((r) => !r.online);
+
+  const tiles = [
+    { l: 'Fleet hashrate', v: round(kpi.hash), u: 'TH/s', s: `${fleet.filter((f) => f.online).length} of ${fleet.length} online` },
+    { l: 'Power draw', v: (kpi.watts / 1000).toFixed(1), u: 'kW', s: `${money((kpi.watts / 1000) * 24 * config.powerRate)} per day` },
+    { l: 'Mined today', v: money(kpi.gross), u: config.ticker, s: `less ${money(kpi.power)} power` },
+    { l: 'Owed to customers', v: money(kpi.owed), u: config.ticker, s: 'settles 00:07 UTC' },
+    { l: 'Fee income', v: money(kpi.fee), u: config.ticker, s: `${Math.round((1 - config.splitStandard) * 100)}% of customer net`, tone: 'ok' },
+    { l: 'SLA credits', v: money(kpi.credit), u: config.ticker, s: 'paid out of fee', tone: kpi.credit > 0 ? 'warn' : undefined },
+    { l: 'Margin today', v: money(Math.abs(kpi.margin)), u: config.ticker, s: kpi.margin < 0 ? 'LOSS' : 'fee less credits', tone: kpi.margin < 0 ? 'neg' : 'ok' },
+    { l: 'Withdrawals queued', v: pending.length, u: '', s: `${money(pendingValue)} ${config.ticker}`, tone: pending.length ? 'warn' : undefined }
+  ];
+
+  return (
+    <div className="admin-page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">9 September 2026</span>
+          <h1>Overview</h1>
+        </div>
+        <span className="pill run"><i className="dot" />Settlement healthy</span>
+      </div>
+
+      <div className="grid tiles">
+        {tiles.map((t) => (
+          <div className="tile" key={t.l}>
+            <span className="eyebrow">{t.l}</span>
+            <span className={'tile-value' + (t.tone ? ' ' + t.tone : '')}>
+              {t.v}{t.u && <small> {t.u}</small>}
+            </span>
+            <span className="tile-sub">{t.s}</span>
+          </div>
+        ))}
+      </div>
+
+      {(down.length > 0 || pending.length > 0) && (
+        <div className="admin-alerts">
+          {down.map((r) => (
+            <div className="notice warn" key={r.sn}>
+              <b>{r.sn} is offline.</b> {byId(r.rigId)?.model} at {r.site}, {(r.uptime * 100).toFixed(1)}%
+              uptime this week — below the {Math.round(config.uptimeSLA * 100)}% floor, so it is accruing
+              SLA credits against your fee. <button className="linkish" onClick={() => go('admin-fleet')}>Open fleet</button>
+            </div>
+          ))}
+          {pending.length > 0 && (
+            <div className="notice info">
+              <b>{pending.length} withdrawal{pending.length > 1 ? 's' : ''} waiting.</b>{' '}
+              {money(pendingValue)} {config.ticker} total.{' '}
+              <button className="linkish" onClick={() => go('admin-withdrawals')}>Review queue</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="split-2">
+        <section className="panel">
+          <h2>Week to date</h2>
+          <table className="table">
+            <thead>
+              <tr><th>Day</th><th className="right">Fee</th><th className="right">Credits</th><th className="right">Margin</th></tr>
+            </thead>
+            <tbody>
+              {WEEK.map((d) => {
+                const rig = byId('s21pro');
+                const paying = fleet.filter((f) => f.owner !== 'pool').length;
+                const one = dayEcon(d, rig, config.splitStandard, config);
+                const f = one.fee * paying, c = one.credit * paying, m = f - c;
+                return (
+                  <tr key={d.d}>
+                    <td>{d.d} <span className="dim small">{d.date}</span></td>
+                    <td className="right mono">{money(f)}</td>
+                    <td className={'right mono ' + (c > 0 ? 'warn' : 'dim')}>{c > 0 ? '−' + money(c) : '—'}</td>
+                    <td className={'right mono ' + (m < 0 ? 'neg' : 'ok')}>{m < 0 ? '−' : '+'}{money(Math.abs(m))}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="small dim">
+            Modelled across the {fleet.filter((f) => f.owner !== 'pool').length} customer-owned units.
+            Pool-owned machines pay no fee because you already keep all of their output.
+          </p>
+        </section>
+
+        <section className="panel">
+          <h2>Recent orders</h2>
+          <table className="table">
+            <thead><tr><th>Order</th><th>Customer</th><th className="right">Value</th><th>Status</th></tr></thead>
+            <tbody>
+              {orders.map((o) => (
+                <tr key={o.id}>
+                  <td className="mono small">{o.id}<span className="dim"> · {o.when}</span></td>
+                  <td>{o.user}</td>
+                  <td className="right mono">{round(o.amount)}</td>
+                  <td><span className={'pill ' + (o.status === 'filled' ? 'run' : o.status === 'cancelled' ? 'mute' : 'hot')}>{o.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="row">
+            <span className="eyebrow">{users.length} customers</span>
+            <button className="linkish" onClick={() => go('admin-users')}>All customers →</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/admin/Fleet.jsx ===== */
+function Fleet() {
+  const { fleet, toggleRig, config } = usePlatform();
+  const [site, setSite] = useState('all');
+
+  const sites = ['all', ...Array.from(new Set(fleet.map((f) => f.site)))];
+  const rows = fleet.filter((f) => site === 'all' || f.site === site);
+
+  return (
+    <div className="admin-page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">{fleet.length} units hosted</span>
+          <h1>Fleet</h1>
+        </div>
+        <div className="seg">
+          {sites.map((s) => (
+            <button key={s} aria-pressed={site === s} onClick={() => setSite(s)}>
+              {s === 'all' ? 'All sites' : s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="panel">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Serial</th><th>Model</th><th>Owner</th><th>Site</th>
+              <th className="right">Uptime</th><th className="right">Temp</th>
+              <th className="right">Credit today</th><th>State</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((u) => {
+              const rig = byId(u.rigId);
+              const share = u.owner === 'pool' ? 1 : config.splitStandard;
+              const day = dayEcon({ hp: 1, up: u.online ? u.uptime : 0 }, rig, share, config);
+              const breaching = u.online && u.uptime < config.uptimeSLA;
+              return (
+                <tr key={u.sn} className={!u.online ? 'is-down' : undefined}>
+                  <td className="mono small">{u.sn}</td>
+                  <td>{rig ? rig.model : '—'}
+                    <span className="dim small"> · {rig ? efficiency(rig).v + ' ' + efficiency(rig).u : ''}</span>
+                  </td>
+                  <td>{u.owner === 'pool' ? <span className="dim">Hashyard</span> : u.owner}</td>
+                  <td className="small">{u.site}</td>
+                  <td className={'right mono ' + (breaching || !u.online ? 'warn' : '')}>
+                    {(u.uptime * 100).toFixed(1)}%
+                  </td>
+                  <td className="right mono small">{u.online ? u.temp + '°C' : '—'}</td>
+                  <td className={'right mono ' + (day.credit > 0 ? 'warn' : 'dim')}>
+                    {u.owner === 'pool' ? '—' : day.credit > 0 ? '−' + money(day.credit) : '0.00'}
+                  </td>
+                  <td>
+                    <span className={'pill ' + (!u.online ? 'mute' : breaching ? 'hot' : 'run')}>
+                      {!u.online ? 'Offline' : breaching ? 'Below SLA' : 'Hashing'}
+                    </span>
+                  </td>
+                  <td className="right">
+                    <button className="btn tiny" onClick={() => toggleRig(u.sn)}>
+                      {u.online ? 'Stop' : 'Start'}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid tiles">
+        <div className="tile">
+          <span className="eyebrow">Below SLA</span>
+          <span className="tile-value warn">
+            {fleet.filter((u) => u.uptime < config.uptimeSLA).length}
+            <small> of {fleet.length}</small>
+          </span>
+          <span className="tile-sub">accruing credits against your fee</span>
+        </div>
+        <div className="tile">
+          <span className="eyebrow">Customer-owned</span>
+          <span className="tile-value">{fleet.filter((u) => u.owner !== 'pool').length}</span>
+          <span className="tile-sub">the only units that generate fee</span>
+        </div>
+        <div className="tile">
+          <span className="eyebrow">Hashyard-owned</span>
+          <span className="tile-value">{fleet.filter((u) => u.owner === 'pool').length}</span>
+          <span className="tile-sub">unsold stock, full output to you</span>
+        </div>
+        <div className="tile">
+          <span className="eyebrow">Nameplate draw</span>
+          <span className="tile-value">
+            {round(fleet.reduce((a, u) => a + (byId(u.rigId)?.watts || 0), 0) / 1000)}<small> kW</small>
+          </span>
+          <span className="tile-sub">if every unit ran flat out</span>
+        </div>
+      </div>
+
+      <p className="small dim">
+        Stopping a unit here simulates an outage: its uptime stops counting, the customer&apos;s payout
+        falls, and the SLA credit that covers the gap appears in the credit column — charged to your
+        fee, not to them.
+      </p>
+    </div>
+  );
+}
+
+/* ===== src/admin/Withdrawals.jsx ===== */
+const TONE = { pending: 'hot', approved: 'run', sent: 'run', rejected: 'mute' };
+
+function Withdrawals() {
+  const { withdrawals, decideWithdrawal, config } = usePlatform();
+  const pending = withdrawals.filter((w) => w.status === 'pending');
+  const queued = pending.reduce((a, b) => a + b.amount, 0);
+
+  return (
+    <div className="admin-page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">{pending.length} awaiting a decision</span>
+          <h1>Withdrawals</h1>
+        </div>
+        <span className={'pill ' + (pending.length ? 'hot' : 'run')}>
+          {money(queued)} {config.ticker} queued
+        </span>
+      </div>
+
+      <div className="notice info">
+        <b>Approving sends real funds on {config.network}, and it cannot be undone.</b> Two things
+        are worth checking before you click: that the customer&apos;s identity check has passed, and
+        that the destination address matches one they have used before. Anything over{' '}
+        {money(REVIEW_THRESHOLD)} {config.ticker} is held for a human on purpose.
+      </div>
+
+      <div className="panel">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Ref</th><th>Customer</th><th className="right">Amount</th>
+              <th>Destination</th><th>Identity</th><th>Status</th><th className="right">Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {withdrawals.map((w) => {
+              const big = w.amount >= REVIEW_THRESHOLD;
+              const blocked = w.kyc !== 'approved';
+              return (
+                <tr key={w.id}>
+                  <td className="mono small">{w.id}<span className="dim"> · {w.when}</span></td>
+                  <td>{w.user}</td>
+                  <td className={'right mono ' + (big ? 'warn' : '')}>
+                    {money(w.amount)}{big && <span className="dim small"> review</span>}
+                  </td>
+                  <td className="mono small dim">{w.address.slice(0, 6)}…{w.address.slice(-4)}</td>
+                  <td>
+                    <span className={'pill ' + (w.kyc === 'approved' ? 'run' : 'hot')}>{w.kyc}</span>
+                  </td>
+                  <td><span className={'pill ' + (TONE[w.status] || 'mute')}>{w.status}</span></td>
+                  <td className="right">
+                    {w.status === 'pending' ? (
+                      <div className="row-actions">
+                        <button className="btn tiny" onClick={() => decideWithdrawal(w.id, 'rejected')}>
+                          Reject
+                        </button>
+                        <button className="btn tiny primary" disabled={blocked}
+                          title={blocked ? 'Identity check has not passed' : undefined}
+                          onClick={() => decideWithdrawal(w.id, 'approved')}>
+                          Approve
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="dim small">—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid tiles">
+        {['pending', 'approved', 'sent', 'rejected'].map((s) => (
+          <div className="tile" key={s}>
+            <span className="eyebrow">{s}</span>
+            <span className="tile-value">{withdrawals.filter((w) => w.status === s).length}</span>
+            <span className="tile-sub">
+              {money(withdrawals.filter((w) => w.status === s).reduce((a, b) => a + b.amount, 0))} {config.ticker}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <p className="small dim">
+        The approve button is disabled while a customer&apos;s identity check is outstanding — that is
+        a deliberate block, not a loading state. Jemal O.&apos;s request stays queued until their check
+        clears.
+      </p>
+    </div>
+  );
+}
+
+/* ===== src/admin/Customers.jsx ===== */
+function Customers() {
+  const { users, fleet, config, withdrawals } = usePlatform();
+
+  const rowsFor = (name) => fleet.filter((f) => f.owner === name);
+
+  return (
+    <div className="admin-page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">{users.length} accounts</span>
+          <h1>Customers</h1>
+        </div>
+      </div>
+
+      <div className="panel">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Customer</th><th>Joined</th><th>Identity</th><th className="right">Balance</th>
+              <th className="right">Machines</th><th className="right">Owed / day</th>
+              <th className="right">Fee / day</th><th>Referred by</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => {
+              const owned = rowsFor(u.name);
+              let owed = 0, fee = 0;
+              for (const unit of owned) {
+                const rig = byId(unit.rigId);
+                if (!rig) continue;
+                const d = dayEcon({ hp: 1, up: unit.online ? unit.uptime : 0 }, rig, config.splitStandard, config);
+                owed += d.paid;
+                fee += d.fee - d.credit;
+              }
+              return (
+                <tr key={u.id}>
+                  <td>
+                    <span className="avatar sm">{u.name.split(' ').map((s) => s[0]).join('')}</span>
+                    {u.name}<span className="dim small"> @{u.handle}</span>
+                  </td>
+                  <td className="small dim">{u.joined}</td>
+                  <td>
+                    <span className={'pill ' + (u.kyc === 'approved' ? 'run' : u.kyc === 'pending' ? 'hot' : 'mute')}>
+                      {u.kyc}
+                    </span>
+                  </td>
+                  <td className="right mono">{money(u.balance)}</td>
+                  <td className="right mono">{owned.length}</td>
+                  <td className="right mono">{money(owed)}</td>
+                  <td className={'right mono ' + (fee < 0 ? 'neg' : 'ok')}>
+                    {fee < 0 ? '−' : '+'}{money(Math.abs(fee))}
+                  </td>
+                  <td className="small dim">{u.referredBy ? '@' + u.referredBy : '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="split-2">
+        <section className="panel">
+          <h2>Referral graph</h2>
+          <p className="small dim">
+            Every account except the first arrived through one referrer. That concentration is worth
+            watching: a referral tree this narrow means your growth and your biggest fee-payer are
+            the same person.
+          </p>
+          <ul className="tree">
+            {users.filter((u) => !u.referredBy).map((root) => (
+              <li key={root.id}>
+                <b>{root.name}</b> <span className="dim small">@{root.handle}</span>
+                <ul>
+                  {users.filter((u) => u.referredBy === root.handle).map((child) => (
+                    <li key={child.id}>
+                      {child.name}
+                      <span className="dim small"> · {rowsFor(child.name).length} machines · {child.kyc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="panel">
+          <h2>Identity checks</h2>
+          <table className="table">
+            <thead><tr><th>State</th><th className="right">Accounts</th><th className="right">Blocked payouts</th></tr></thead>
+            <tbody>
+              {['approved', 'pending', 'none'].map((k) => {
+                const names = users.filter((u) => u.kyc === k).map((u) => u.name);
+                const blocked = withdrawals.filter((w) => w.status === 'pending' && names.includes(w.user));
+                return (
+                  <tr key={k}>
+                    <td><span className={'pill ' + (k === 'approved' ? 'run' : k === 'pending' ? 'hot' : 'mute')}>{k}</span></td>
+                    <td className="right mono">{names.length}</td>
+                    <td className="right mono">
+                      {k === 'approved' ? '—' : blocked.length ? money(blocked.reduce((a, b) => a + b.amount, 0)) : '0.00'}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="small dim">
+            A withdrawal cannot be approved while its owner&apos;s check is outstanding. That is the
+            one place in this console where the block is enforced rather than advisory.
+          </p>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/admin/Pricing.jsx ===== */
+const CONTROLS = [
+  { k: 'btcHashprice', label: 'BTC hashprice', unit: '$/PH·day', min: 15, max: 90, step: 0.1,
+    help: 'What a petahash earns per day. Set by BTC price and network difficulty — you do not control it, but every figure on the site follows it.' },
+  { k: 'powerRate', label: 'Power tariff', unit: '$/kWh', min: 0.02, max: 0.14, step: 0.001,
+    help: 'Your all-in hosting cost. The single number that decides which machines are worth running.' },
+  { k: 'splitStandard', label: 'Standard split', unit: 'to owner', min: 0.6, max: 0.95, step: 0.01, pct: true,
+    help: 'The owner keeps this share of net revenue; you keep the rest. It also sets your SLA break-even.' },
+  { k: 'splitPro', label: 'Pro split', unit: 'to owner', min: 0.7, max: 0.98, step: 0.01, pct: true,
+    help: 'The 12-month tier. A higher number here halves the fee that funds your guarantee.' },
+  { k: 'uptimeSLA', label: 'Uptime guarantee', unit: 'floor', min: 0.85, max: 0.999, step: 0.005, pct: true,
+    help: 'Hash fewer hours than this and you credit the shortfall. Raising it raises your break-even uptime one-for-one.' },
+  { k: 'referralShare', label: 'Referral share', unit: 'of your fee', min: 0, max: 0.3, step: 0.01, pct: true,
+    help: 'Paid from the platform fee on a referred machine — never from their deposit.' },
+  { k: 'firstDeposit', label: 'First-deposit credit', unit: 'of deposit', min: 0, max: 0.25, step: 0.01, pct: true,
+    help: 'Hosting credit, not withdrawable cash. Capped at ' + CONFIG.firstDepCap + ' USDT.' }
+];
+
+function Pricing() {
+  const { config, setConfigValue, resetConfig, dirty, fleet } = usePlatform();
+
+  const sellable = RIGS.filter((r) => econ(r, config.splitStandard, config).viable);
+  const underwater = RIGS.length - sellable.length;
+  const paying = fleet.filter((f) => f.owner !== 'pool');
+
+  const exposure = [config.splitStandard, config.splitPro].map((sp) => {
+    const be = breakEvenUptime(sp, config);
+    const thu = dayEcon(WEEK[3], byId('s21pro'), sp, config);
+    const week = WEEK.reduce((a, d) => {
+      const x = dayEcon(d, byId('s21pro'), sp, config);
+      return a + x.fee - x.credit;
+    }, 0);
+    return { sp, be, thu, week, fleetWeek: week * paying.length };
+  });
+
+  return (
+    <div className="admin-page">
+      <div className="page-head">
+        <div>
+          <span className="eyebrow">Live — the customer site reads these values</span>
+          <h1>Pricing &amp; risk</h1>
+        </div>
+        <button className="btn" onClick={resetConfig} disabled={!dirty}>
+          {dirty ? 'Reset to shipped values' : 'At shipped values'}
+        </button>
+      </div>
+
+      <div className="notice info">
+        <b>These controls are wired, not decorative.</b> Move any slider and the marketplace,
+        the machine pages, the dashboard and the settlement ledger all recompute — there is one
+        source of truth for the economy, and this is it.
+      </div>
+
+      <div className="split-2">
+        <section className="panel">
+          <h2>Economy</h2>
+          <div className="controls">
+            {CONTROLS.map((c) => {
+              const v = config[c.k];
+              const changed = CONFIG[c.k] !== v;
+              return (
+                <div className="control" key={c.k}>
+                  <div className="row">
+                    <label htmlFor={'c-' + c.k}>
+                      {c.label}
+                      {changed && <em className="edited">edited</em>}
+                    </label>
+                    <span className="mono val">
+                      {c.pct ? (v * 100).toFixed(c.step < 0.01 ? 1 : 0) + '%' : v.toFixed(c.step < 0.01 ? 3 : 2)}
+                      <small> {c.unit}</small>
+                    </span>
+                  </div>
+                  <input id={'c-' + c.k} type="range" min={c.min} max={c.max} step={c.step} value={v}
+                    onChange={(e) => setConfigValue(c.k, parseFloat(e.target.value))} />
+                  <p className="small dim">{c.help}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <div className="stack">
+          <section className="panel">
+            <h2>What the catalogue looks like now</h2>
+            <div className="grid tiles">
+              <div className="tile">
+                <span className="eyebrow">Sellable</span>
+                <span className="tile-value ok">{sellable.length}<small> of {RIGS.length}</small></span>
+                <span className="tile-sub">net positive after power</span>
+              </div>
+              <div className="tile">
+                <span className="eyebrow">Underwater</span>
+                <span className={'tile-value ' + (underwater > 1 ? 'neg' : '')}>{underwater}</span>
+                <span className="tile-sub">burn more than they mine</span>
+              </div>
+            </div>
+            {underwater > 0 && (
+              <div className="notice warn">
+                <b>{underwater} machine{underwater > 1 ? "s are" : " is"} now underwater.</b> At ${config.powerRate.toFixed(3)}/kWh
+                and ${config.btcHashprice.toFixed(2)}/PH·day these cannot be sold, and any already
+                racked are costing their owners money every day:{' '}
+                {RIGS.filter((r) => !econ(r, config.splitStandard, config).viable)
+                  .map((r) => r.model).join(', ')}.
+              </div>
+            )}
+            <table className="table">
+              <thead><tr><th>Machine</th><th className="right">Owner / day</th><th className="right">Your fee</th></tr></thead>
+              <tbody>
+                {['sh-s21pro-14', 's21pro', 's21xph', 's19kpro'].map((id) => {
+                  const r = byId(id);
+                  const e = econ(r, config.splitStandard, config);
+                  return (
+                    <tr key={id}>
+                      <td className="small">{r.model}</td>
+                      <td className={'right mono ' + (e.viable ? '' : 'neg')}>
+                        {e.viable ? '+' : '−'}{money(Math.abs(e.you))}
+                      </td>
+                      <td className={'right mono ' + (e.fee > 0 ? 'ok' : 'neg')}>
+                        {e.fee > 0 ? '+' : '−'}{money(Math.abs(e.fee))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </section>
+
+          <section className="panel">
+            <h2>Guarantee exposure</h2>
+            <p className="small dim">
+              SLA credits come out of your fee. Below <b>owner split × SLA</b> a machine costs more in
+              credits than it earns you — the identity cancels hashprice, model and power cost, so
+              these two numbers are the whole risk model.
+            </p>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Plan</th><th className="right">Break-even</th><th className="right">Thu margin</th>
+                  <th className="right">Week, fleet</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exposure.map((x) => {
+                  const m = x.thu.fee - x.thu.credit;
+                  return (
+                    <tr key={x.sp}>
+                      <td>{Math.round(x.sp * 100)}/{Math.round((1 - x.sp) * 100)}</td>
+                      <td className="right mono warn">{(x.be * 100).toFixed(1)}%</td>
+                      <td className={'right mono ' + (m < 0 ? 'neg' : 'ok')}>
+                        {m < 0 ? '−' : '+'}{money(Math.abs(m))}
+                      </td>
+                      <td className={'right mono ' + (x.fleetWeek < 0 ? 'neg' : 'ok')}>
+                        {x.fleetWeek < 0 ? '−' : '+'}{money(Math.abs(x.fleetWeek))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {exposure[1].be > 0.9 && (
+              <div className="notice warn">
+                <b>The Pro tier is the exposed one.</b> At a {Math.round(config.splitPro * 100)}%
+                owner split you need {(exposure[1].be * 100).toFixed(1)}% uptime just to break even on
+                the guarantee, while collecting half the fee that funds it. Consider offering the
+                guarantee on Standard only, or giving Pro a lower floor.
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/App.jsx ===== */
+const ADMIN = {
+  admin: Overview,
+  'admin-fleet': Fleet,
+  'admin-withdrawals': Withdrawals,
+  'admin-users': Customers,
+  'admin-pricing': Pricing
+};
+
+function Site() {
+  const { route, go } = useRouter();
+  const { theme, setTheme } = useTheme();
+  const { config, dirty } = usePlatform();
+
+  // Purchase intent lives above the pages: the split is picked on the machine
+  // page and must still be there at checkout.
+  const [split, setSplit] = useState(config.splitStandard);
+  const [day, setDay] = useState(3); // Thursday - the day the guarantee pays
+
+  const openDay = (i) => { setDay(i); go('settlement'); };
+
+  const AdminPage = ADMIN[route.page];
+  if (AdminPage) {
+    return (
+      <AdminLayout page={route.page} go={go}>
+        <AdminPage go={go} />
+      </AdminLayout>
+    );
+  }
+
+  let view;
+  switch (route.page) {
+    case 'machine':
+      view = <MachineDetail id={route.param} split={split} setSplit={setSplit} go={go} />;
+      break;
+    case 'checkout':
+      view = <Checkout id={route.param} split={split} setSplit={setSplit} go={go} />;
+      break;
+    case 'dashboard':
+      view = <Dashboard go={go} onPickDay={openDay} />;
+      break;
+    case 'settlement':
+      view = <Settlement day={day} setDay={setDay} />;
+      break;
+    case 'wallet':
+      view = <Wallet />;
+      break;
+    case 'referrals':
+      view = <Referrals />;
+      break;
+    default:
+      view = <Machines go={go} />;
+  }
+
+  return (
+    <>
+      <Header page={route.page} go={go} theme={theme} setTheme={setTheme} />
+      {dirty && (
+        <div className="live-banner">
+          Showing edited platform values from the operator console.
+          <button onClick={() => go('admin-pricing')}>Open pricing</button>
+        </div>
+      )}
+      <main className="shell">{view}</main>
+      <footer className="site-footer">
+        <div className="shell footer-inner">
+          <span>Hashyard — prototype. No live wallet, no real funds.</span>
+          <span className="mono">
+            Hashprice ${config.btcHashprice.toFixed(2)}/PH·day · power ${config.powerRate.toFixed(3)}/kWh ·
+            SLA {Math.round(config.uptimeSLA * 100)}%
+          </span>
+          <button className="linkish" onClick={() => go('admin')}>Operator console →</button>
+        </div>
+      </footer>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <PlatformProvider>
+      <Site />
+    </PlatformProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+
+<script>
+/* Babel-standalone is only needed for this preview build, and cdnjs version
+   paths move. Try a few, and say something useful rather than showing a blank
+   page if none of them load. */
+(function () {
+  var VERSIONS = ['7.26.4', '7.25.6', '7.24.7', '7.23.5'];
+  var root = document.getElementById('root');
+
+  function fail(why) {
+    root.innerHTML =
+      '<div class="boot-msg"><h1>Preview could not start</h1><p>' + why +
+      '</p><p style="margin-top:10px">The project itself is unaffected — run ' +
+      '<code>npm install &amp;&amp; npm run dev</code> in <code>hashyard-web/</code>, ' +
+      'which uses Vite and needs none of this.</p></div>';
+  }
+
+  function run() {
+    try {
+      window.Babel.transformScriptTags();
+    } catch (e) {
+      fail('The preview bundle failed to compile: ' + e.message);
+    }
+  }
+
+  function load(i) {
+    if (i >= VERSIONS.length) return fail('The JSX compiler could not be loaded from the CDN.');
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/' + VERSIONS[i] + '/babel.min.js';
+    s.onload = function () { window.Babel ? run() : load(i + 1); };
+    s.onerror = function () { load(i + 1); };
+    document.head.appendChild(s);
+  }
+
+  if (!window.React || !window.ReactDOM) return fail('React could not be loaded from the CDN.');
+  load(0);
+})();
+</script>

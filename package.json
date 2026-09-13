@@ -1,0 +1,23 @@
+{
+  "name": "hashyard-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Hosted-mining marketplace \u2014 React website",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "node check.cjs",
+    "verify": "node verify.mjs",
+    "test:render": "node tools/render-test.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}
