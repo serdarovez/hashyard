@@ -2,13 +2,14 @@ import React from 'react';
 import RigDrawing from '../components/RigDrawing.jsx';
 import SplitSelector from '../components/SplitSelector.jsx';
 import Ledger from '../components/Ledger.jsx';
-import { byId } from '../data/catalog.js';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { Loading } from '../components/ui.jsx';
+import { useApp } from '../state/AppContext.jsx';
 import { econ, efficiency, money, round, priceFor, paybackMonths } from '../lib/economics.js';
 
 export default function MachineDetail({ id, split, setSplit, go }) {
-  const { config } = usePlatform();
-  const rig = byId(id);
+  const { config, machines, catalogReady } = useApp();
+  const rig = machines.find((m) => m.id === id);
+  if (!catalogReady) return <div className="page"><Loading /></div>;
   if (!rig) {
     return (
       <div className="page narrow">
@@ -103,7 +104,9 @@ export default function MachineDetail({ id, split, setSplit, go }) {
               <div><dt>Pays for itself in</dt><dd>{months || '—'}<small>months</small></dd></div>
             </dl>
 
-            {e.viable ? (
+            {rig.stock < 1 ? (
+              <div className="notice warn"><b>Sold out.</b> This machine is not available right now.</div>
+            ) : e.viable ? (
               <>
                 <div className="notice info">
                   <b>We guarantee it runs {Math.round(config.uptimeSLA * 100)}% of the time.</b> If

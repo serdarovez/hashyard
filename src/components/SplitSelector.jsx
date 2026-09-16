@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { useApp } from '../state/AppContext.jsx';
 import { econ, money, round, priceFor } from '../lib/economics.js';
 
 /**
@@ -9,7 +9,7 @@ import { econ, money, round, priceFor } from '../lib/economics.js';
  * price, its own monthly earnings, and how long the extra takes to come back.
  */
 export default function SplitSelector({ rig, value, onChange }) {
-  const { config } = usePlatform();
+  const { config } = useApp();
 
   const build = (share, name, blurb) => {
     const e = econ(rig, share, config);

@@ -465,6 +465,7 @@ select, button { font-family: inherit; }
 .table td { padding: 11px 0; border-bottom: 1px solid var(--line-2); }
 .table tr:last-child td { border-bottom: 0; }
 .table .right { text-align: right; }
+.table th + th, .table td + td { padding-left: 16px; }
 
 .deposit-panel { align-items: center; }
 .qr { width: 176px; height: 176px; background: #fff; border: 1px solid var(--line-2); border-radius: 12px; padding: 8px; }
@@ -603,3 +604,135 @@ select, button { font-family: inherit; }
   .admin-nav nav { flex-direction: row; flex-wrap: wrap; }
   .admin-main { padding: 22px 18px 60px; }
 }
+
+/* ==========================================================================
+   Live backend screens: forms, payment, account menu, admin editors
+   ========================================================================== */
+.loading { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-size: 14px; padding: 24px 0; }
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%; flex: none;
+  border: 2px solid var(--line); border-top-color: var(--accent);
+}
+@media (prefers-reduced-motion: no-preference) { .spinner { animation: spin .8s linear infinite; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  padding: 28px; border: 1px dashed var(--line); border-radius: 16px; background: var(--panel);
+}
+
+.input {
+  height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); font: inherit; font-size: 14px; min-width: 0;
+}
+.input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.input:disabled { opacity: .6; }
+.input.num { width: 110px; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.input.short { width: 78px; }
+select.input { padding-right: 8px; }
+.grow { flex: 1 1 200px; }
+.table-wrap { overflow-x: auto; }
+.small-btn { height: 36px; padding: 0 14px; font-size: 13.5px; }
+.linkish-btn { background: none; border: 0; box-shadow: none; color: var(--ink-3); align-self: flex-start; padding: 0; height: auto; font-weight: 500; }
+.linkish-btn:hover { color: var(--neg); background: none; }
+
+/* sign in */
+.signin-card { align-items: flex-start; gap: 14px; padding: 28px; }
+.btn.google { background: var(--panel); border: 1px solid var(--line); height: 48px; padding: 0 20px; font-size: 15px; }
+
+/* account menu */
+.menu-wrap { position: relative; }
+button.avatar { cursor: pointer; padding: 0; overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 8px); min-width: 220px; z-index: 40;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 6px;
+  box-shadow: 0 16px 40px -18px rgba(0,0,0,.45); display: flex; flex-direction: column;
+}
+.menu-head { display: flex; flex-direction: column; gap: 1px; padding: 8px 10px 10px; border-bottom: 1px solid var(--line-2); margin-bottom: 4px; }
+.menu button { background: none; border: 0; text-align: left; padding: 9px 10px; border-radius: 8px; color: var(--ink); font-size: 14px; cursor: pointer; }
+.menu button:hover { background: var(--panel-2); }
+
+.error-banner { background: var(--neg-dim); border-color: var(--neg-line); color: var(--neg); }
+
+/* payment screen */
+.pay-timer { justify-content: flex-start; gap: 8px; }
+.pay-panel { gap: 22px; }
+.pay-step { display: flex; flex-direction: column; gap: 8px; }
+.pay-amount { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pay-amount .mono { font-size: 34px; letter-spacing: -.01em; color: var(--accent-lift); }
+.pay-amount small { color: var(--ink-2); font-size: 15px; }
+.pay-qr-row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.pay-address { flex: 1 1 200px; }
+.pay-address .mono { font-size: 14px; word-break: break-all; line-height: 1.5; }
+.qr-real { background: #fff; border: 1px solid var(--line-2); border-radius: 12px; padding: 8px; flex: none; }
+.qr-real svg { width: 100%; height: 100%; display: block; }
+.pay-status { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--ink-2);
+  padding-top: 14px; border-top: 1px solid var(--line-2); }
+
+/* admin: routine + editors */
+.routine { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.editor-grid { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+.editor-preview { padding: 14px; }
+.form-grid, .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.field-row { display: flex; flex-direction: column; gap: 5px; }
+.field-row .input { width: 100%; }
+.wide-field { grid-column: 1 / -1; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 14px; align-self: end; height: 40px; }
+.results-table tr.derived td { color: var(--ink-2); }
+.manual-confirm { padding: 10px 0 4px; }
+.withdraw-card.is-late { border-color: var(--accent); }
+.send-box { background: var(--panel-2); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.send-box .addr { word-break: break-all; text-align: right; }
+.invite-link { font-size: 13px; word-break: break-all; background: var(--panel-2); padding: 9px 12px; border-radius: 10px; }
+code { font-family: var(--f-mono); font-size: 12px; background: var(--panel-2); padding: 2px 6px; border-radius: 5px; }
+
+@media (max-width: 720px) {
+  .editor-grid { grid-template-columns: 1fr; }
+  .pay-amount .mono { font-size: 28px; }
+  .input.num { width: 92px; }
+}
+
+/* ---------- leaderboard ---------- */
+.board td { vertical-align: middle; }
+.board th:last-child, .board td:last-child { padding-left: 32px; white-space: nowrap; }
+.board tr.is-me { background: var(--accent-dim); }
+.place {
+  display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px;
+  border-radius: 8px; background: var(--panel-2); color: var(--ink-2);
+  font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums;
+}
+.place.top { background: var(--accent); color: #FFF4EA; }
+.board-teaser {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  width: 100%; text-align: left; cursor: pointer; color: var(--ink);
+}
+.board-teaser:hover { border-color: var(--line); }
+@media (max-width: 720px) {
+  .mobile-nav { grid-template-columns: repeat(5, 1fr); }
+  /* tab rows with many options wrap instead of pushing the page sideways */
+  .seg { flex-wrap: wrap; max-width: 100%; }
+}
+
+/* ---------- login ---------- */
+.login-form { width: 100%; max-width: 380px; }
+.code-input { font-size: 26px; letter-spacing: .35em; text-align: center; height: 56px; }
+.linkish:disabled { color: var(--ink-3); text-decoration: none; cursor: default; }
+
+/* ---------- referrals ---------- */
+.ref-table tr.is-picked td { background: var(--line-2); }
+.ref-table td:first-child, .ref-table th:first-child { padding-left: 8px; }
+@media (max-width: 720px) { .ref-table .opt { display: none; } }
+
+/* ---------- earnings history ---------- */
+.history { display: flex; flex-direction: column; }
+.history-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+.history-row:last-child { border-bottom: 0; }
+.history-row .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--accent-lift); }
+
+/* ---------- admin price + profit editing ---------- */
+.price-cell { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.input.is-bad { border-color: var(--neg); }
+.input.is-neg { color: var(--neg); }
+.machines-admin td { vertical-align: middle; }

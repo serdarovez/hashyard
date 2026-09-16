@@ -13,3 +13,12 @@ hashyard-site.html
 *.log
 _patch.py
 _css.py
+
+# Secrets - never commit these
+.env
+.env.local
+.env.*.local
+
+# Supabase CLI working files
+supabase/.temp/
+supabase/.branches/

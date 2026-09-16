@@ -1,0 +1,12 @@
+# Supabase CLI settings. Only the parts that differ from the defaults.
+project_id = "hashyard"
+
+# The scanner is safe for anyone to trigger (it throttles itself and confirming
+# twice does nothing), and the browser pokes it right after a customer pays.
+[functions.payments]
+verify_jwt = false
+
+# Protected by the x-cron-secret header instead of a user token, because it is
+# called by the scheduler, not by a signed-in person.
+[functions.daily-email]
+verify_jwt = false

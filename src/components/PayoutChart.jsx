@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { useApp } from '../state/AppContext.jsx';
 import { money } from '../lib/economics.js';
 
 /**
@@ -12,17 +12,19 @@ import { money } from '../lib/economics.js';
  * and a tooltip, carries it without that cost.
  */
 export default function PayoutChart({ series, onPickDay }) {
-  const { config } = usePlatform();
+  const { config } = useApp();
   const [hover, setHover] = useState(null);
-  const max = Math.max(...series.map((s) => s.paid));
+  const last = series.length - 1;
+  const max = Math.max(0.000001, ...series.map((s) => s.paid));
   const credited = series.reduce((a, b) => a + b.credit, 0);
+  if (!series.length) return null;
 
   return (
     <div className="chart-block">
       <div className="chart" role="img"
-        aria-label={`Daily payout over seven days, ${money(series[0].paid)} to ${money(series[6].paid)} ${config.ticker}`}>
+        aria-label={`Daily payout over ${series.length} days, ${money(series[0].paid)} to ${money(series[last].paid)} ${config.ticker}`}>
         {series.map((s, i) => (
-          <button key={s.d} className={'chart-col' + (i === 6 ? ' is-today' : '')}
+          <button key={s.key || s.d} className={'chart-col' + (i === last ? ' is-today' : '')}
             onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}
             onFocus={() => setHover(i)} onBlur={() => setHover(null)}
             onClick={() => onPickDay && onPickDay(i)}
@@ -44,8 +46,8 @@ export default function PayoutChart({ series, onPickDay }) {
 
       <div className="chart-axis">
         {series.map((s, i) => (
-          <span key={s.d} className={i === 6 ? 'is-today' : undefined}>
-            {s.credit > 0 ? '◦ ' : ''}{i === 6 ? 'Today' : s.d}
+          <span key={s.key || s.d} className={i === last ? 'is-today' : undefined}>
+            {s.credit > 0 ? '◦ ' : ''}{s.d}
           </span>
         ))}
       </div>

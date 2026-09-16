@@ -10,11 +10,14 @@
     "preview": "vite preview",
     "check": "node check.cjs",
     "verify": "node verify.mjs",
-    "test:render": "node tools/render-test.mjs"
+    "test:db": "bash supabase/tests/run.sh",
+    "test:payments": "node supabase/functions/_shared/payments.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@supabase/supabase-js": "^2.49.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

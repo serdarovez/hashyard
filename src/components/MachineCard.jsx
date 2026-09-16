@@ -1,6 +1,6 @@
 import React from 'react';
 import RigDrawing from './RigDrawing.jsx';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { useApp } from '../state/AppContext.jsx';
 import { econ, money, round, paybackMonths } from '../lib/economics.js';
 
 /**
@@ -13,7 +13,7 @@ import { econ, money, round, paybackMonths } from '../lib/economics.js';
  * the detail page under "Technical details".
  */
 export default function MachineCard({ rig, onOpen }) {
-  const { config } = usePlatform();
+  const { config } = useApp();
   const e = econ(rig, config.splitStandard, config);
   const months = paybackMonths(rig, config.splitStandard, config);
   const isShare = rig.kind === 'share';

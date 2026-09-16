@@ -30,14 +30,6 @@ const TABS = [
     )
   },
   {
-    id: 'settlement', label: 'Payouts',
-    icon: (
-      <>
-        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
-      </>
-    )
-  },
-  {
     id: 'wallet', label: 'Wallet',
     icon: (
       <>
@@ -48,7 +40,16 @@ const TABS = [
     )
   },
   {
-    id: 'referrals', label: 'Referrals',
+    id: 'leaderboard', label: 'Top',
+    icon: (
+      <>
+        <path d="M6 20h12M9 20v-6h6v6" />
+        <path d="M12 3l2 4 4 .6-3 2.9.7 4.1-3.7-2-3.7 2 .7-4.1-3-2.9L10 7z" />
+      </>
+    )
+  },
+  {
+    id: 'referrals', label: 'Invite',
     icon: (
       <>
         <circle cx="9" cy="8" r="3.4" />

@@ -1,15 +1,13 @@
-import React from 'react';
-import { ME } from '../data/account.js';
-import { usePlatform } from '../state/PlatformContext.jsx';
-
+import React, { useEffect, useRef, useState } from 'react';
+import { useApp } from '../state/AppContext.jsx';
 import { money } from '../lib/economics.js';
 
 const NAV = [
   ['machines', 'Machines'],
   ['dashboard', 'Dashboard'],
-  ['settlement', 'Payouts'],
   ['wallet', 'Wallet'],
-  ['referrals', 'Referrals']
+  ['referrals', 'Referrals'],
+  ['leaderboard', 'Leaderboard']
 ];
 
 const ICON = {
@@ -19,7 +17,20 @@ const ICON = {
 };
 
 export default function Header({ page, go, theme, setTheme }) {
-  const { config } = usePlatform();
+  const { config, session, profile, balance, isAdmin, signIn, signOut } = useApp();
+  const [menu, setMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!menu) return undefined;
+    const close = (e) => { if (!menuRef.current?.contains(e.target)) setMenu(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [menu]);
+
+  const initials = (profile?.full_name || profile?.email || '?')
+    .split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((s) => s[0].toUpperCase()).join('');
+
   return (
     <header className="site-header">
       <div className="shell header-inner">
@@ -34,28 +45,49 @@ export default function Header({ page, go, theme, setTheme }) {
 
         <nav className="site-nav" aria-label="Main">
           {NAV.map(([id, label]) => (
-            <button key={id} onClick={() => go(id)}
-              aria-current={page === id ? 'page' : undefined}>{label}</button>
+            <button key={id} onClick={() => go(id)} aria-current={page === id ? 'page' : undefined}>{label}</button>
           ))}
         </nav>
 
         <div className="header-right">
-          <button className="balance-chip" onClick={() => go('wallet')}>
-            <span className="k">Balance</span>
-            <span className="v">{money(ME.balance)} {config.ticker}</span>
-          </button>
+          {session && (
+            <button className="balance-chip" onClick={() => go('wallet')}>
+              <span className="k">Earnings to withdraw</span>
+              <span className="v">{money(balance)} {config.ticker}</span>
+            </button>
+          )}
 
           <div className="themer" role="group" aria-label="Appearance">
             {['light', 'system', 'dark'].map((t) => (
-              <button key={t} onClick={() => setTheme(t)} title={t}
-                aria-pressed={theme === t} aria-label={t}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{ICON[t]}</svg>
+              <button key={t} onClick={() => setTheme(t)} title={t} aria-pressed={theme === t} aria-label={t}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"
+                  strokeLinecap="round" strokeLinejoin="round">{ICON[t]}</svg>
               </button>
             ))}
           </div>
 
-          <span className="avatar" title={ME.name}>{ME.initials}</span>
+          {session ? (
+            <div className="menu-wrap" ref={menuRef}>
+              <button className="avatar" onClick={() => setMenu((m) => !m)} aria-expanded={menu} aria-label="Account menu">
+                {profile?.avatar_url
+                  ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" />
+                  : initials}
+              </button>
+              {menu && (
+                <div className="menu" role="menu">
+                  <div className="menu-head">
+                    <b>{profile?.full_name || 'Your account'}</b>
+                    <span className="small dim">{profile?.email}</span>
+                  </div>
+                  <button role="menuitem" onClick={() => { setMenu(false); go('wallet'); }}>Wallet &amp; settings</button>
+                  {isAdmin && <button role="menuitem" onClick={() => { setMenu(false); go('admin'); }}>Operator console</button>}
+                  <button role="menuitem" onClick={() => { setMenu(false); signOut(); go('machines'); }}>Sign out</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className="btn small-btn" onClick={() => signIn(window.location.hash)}>Log in</button>
+          )}
         </div>
       </div>
     </header>

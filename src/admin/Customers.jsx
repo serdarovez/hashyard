@@ -1,119 +1,85 @@
-import React from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
-import { byId } from '../data/catalog.js';
-import { dayEcon, money } from '../lib/economics.js';
+import React, { useState } from 'react';
+import { ErrorNote, Loading, fmtDate, useLoad } from '../components/ui.jsx';
+import { useApp } from '../state/AppContext.jsx';
+import { money, round } from '../lib/economics.js';
+
+function Adjust({ user, onDone }) {
+  const { api } = useApp();
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+  const [state, setState] = useState({ busy: false, error: null });
+
+  const save = async () => {
+    setState({ busy: true, error: null });
+    try {
+      const n = Number(amount);
+      if (!Number.isFinite(n) || n === 0) throw new Error('Enter an amount, e.g. 5 to add or -5 to remove.');
+      await api.admin.adjust(user.id, n, note);
+      onDone();
+    } catch (e) {
+      setState({ busy: false, error: e });
+    }
+  };
+
+  return (
+    <div className="stack gap-sm">
+      <div className="row gap">
+        <input className="input num" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="+5 or -5" inputMode="decimal" />
+        <input className="input grow" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Reason — shown to the customer" />
+        <button className="btn tiny primary" disabled={state.busy} onClick={save}>Apply</button>
+      </div>
+      <ErrorNote error={state.error} />
+    </div>
+  );
+}
 
 export default function Customers() {
-  const { users, fleet, config, withdrawals } = usePlatform();
+  const { api, config } = useApp();
+  const { data, loading, error, reload } = useLoad(() => api.admin.users(), []);
+  const [open, setOpen] = useState(null);
+  const [q, setQ] = useState('');
 
-  const rowsFor = (name) => fleet.filter((f) => f.owner === name);
+  const rows = (data || []).filter((u) => !q || `${u.email} ${u.full_name || ''}`.toLowerCase().includes(q.toLowerCase()));
 
   return (
     <div className="admin-page">
       <div className="page-head">
-        <div>
-          <span className="eyebrow">{users.length} accounts</span>
-          <h1>Customers</h1>
+        <div><span className="eyebrow">{data ? data.length : '…'} accounts</span><h1>Customers</h1></div>
+        <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search email or name" />
+      </div>
+
+      {loading ? <Loading /> : error ? <ErrorNote error={error} /> : (
+        <div className="panel">
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Customer</th><th>Joined</th><th className="right">Machines</th><th className="right">Bought</th><th className="right">Balance</th><th>Invited by</th><th /></tr></thead>
+              <tbody>
+                {rows.map((u) => (
+                  <React.Fragment key={u.id}>
+                    <tr>
+                      <td>{u.full_name || '—'}<br /><span className="small dim">{u.email}</span>{u.role === 'admin' && <span className="pill hot"> admin</span>}</td>
+                      <td className="small dim">{fmtDate(u.created_at)}</td>
+                      <td className="right mono">{u.holdings}</td>
+                      <td className="right mono">{round(Number(u.paid_total))}</td>
+                      <td className="right mono">{money(Number(u.balance))}</td>
+                      <td className="small dim">{u.referred_by_email || '—'}</td>
+                      <td className="right"><button className="btn tiny" onClick={() => setOpen(open === u.id ? null : u.id)}>{open === u.id ? 'Close' : 'Adjust'}</button></td>
+                    </tr>
+                    {open === u.id && (
+                      <tr><td colSpan={7}><Adjust user={u} onDone={() => { setOpen(null); reload(); }} /></td></tr>
+                    )}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      <div className="panel">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Customer</th><th>Joined</th><th>Identity</th><th className="right">Balance</th>
-              <th className="right">Machines</th><th className="right">Owed / day</th>
-              <th className="right">Fee / day</th><th>Referred by</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => {
-              const owned = rowsFor(u.name);
-              let owed = 0, fee = 0;
-              for (const unit of owned) {
-                const rig = byId(unit.rigId);
-                if (!rig) continue;
-                const d = dayEcon({ hp: 1, up: unit.online ? unit.uptime : 0 }, rig, config.splitStandard, config);
-                owed += d.paid;
-                fee += d.fee - d.credit;
-              }
-              return (
-                <tr key={u.id}>
-                  <td>
-                    <span className="avatar sm">{u.name.split(' ').map((s) => s[0]).join('')}</span>
-                    {u.name}<span className="dim small"> @{u.handle}</span>
-                  </td>
-                  <td className="small dim">{u.joined}</td>
-                  <td>
-                    <span className={'pill ' + (u.kyc === 'approved' ? 'run' : u.kyc === 'pending' ? 'hot' : 'mute')}>
-                      {u.kyc}
-                    </span>
-                  </td>
-                  <td className="right mono">{money(u.balance)}</td>
-                  <td className="right mono">{owned.length}</td>
-                  <td className="right mono">{money(owed)}</td>
-                  <td className={'right mono ' + (fee < 0 ? 'neg' : 'ok')}>
-                    {fee < 0 ? '−' : '+'}{money(Math.abs(fee))}
-                  </td>
-                  <td className="small dim">{u.referredBy ? '@' + u.referredBy : '—'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="split-2">
-        <section className="panel">
-          <h2>Referral graph</h2>
-          <p className="small dim">
-            Every account except the first arrived through one referrer. That concentration is worth
-            watching: a referral tree this narrow means your growth and your biggest fee-payer are
-            the same person.
-          </p>
-          <ul className="tree">
-            {users.filter((u) => !u.referredBy).map((root) => (
-              <li key={root.id}>
-                <b>{root.name}</b> <span className="dim small">@{root.handle}</span>
-                <ul>
-                  {users.filter((u) => u.referredBy === root.handle).map((child) => (
-                    <li key={child.id}>
-                      {child.name}
-                      <span className="dim small"> · {rowsFor(child.name).length} machines · {child.kyc}</span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="panel">
-          <h2>Identity checks</h2>
-          <table className="table">
-            <thead><tr><th>State</th><th className="right">Accounts</th><th className="right">Blocked payouts</th></tr></thead>
-            <tbody>
-              {['approved', 'pending', 'none'].map((k) => {
-                const names = users.filter((u) => u.kyc === k).map((u) => u.name);
-                const blocked = withdrawals.filter((w) => w.status === 'pending' && names.includes(w.user));
-                return (
-                  <tr key={k}>
-                    <td><span className={'pill ' + (k === 'approved' ? 'run' : k === 'pending' ? 'hot' : 'mute')}>{k}</span></td>
-                    <td className="right mono">{names.length}</td>
-                    <td className="right mono">
-                      {k === 'approved' ? '—' : blocked.length ? money(blocked.reduce((a, b) => a + b.amount, 0)) : '0.00'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <p className="small dim">
-            A withdrawal cannot be approved while its owner&apos;s check is outstanding. That is the
-            one place in this console where the block is enforced rather than advisory.
-          </p>
-        </section>
-      </div>
+      )}
+      <p className="small dim">
+        Adjustments add or remove {config.ticker} from a balance with a reason the customer can see, and are written to the
+        audit log. To make someone an operator, run this once in the Supabase SQL editor:
+        <code> update profiles set role = &apos;admin&apos; where email = &apos;them@gmail.com&apos;;</code>
+      </p>
     </div>
   );
 }

@@ -1,20 +1,36 @@
 import React from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { Loading, SignInGate, useLoad } from '../components/ui.jsx';
+import { useApp } from '../state/AppContext.jsx';
 
 const SECTIONS = [
   ['admin', 'Overview'],
-  ['admin-fleet', 'Fleet'],
+  ['admin-results', 'Daily profit'],
+  ['admin-machines', 'Machines'],
+  ['admin-orders', 'Orders'],
   ['admin-withdrawals', 'Withdrawals'],
   ['admin-users', 'Customers'],
-  ['admin-pricing', 'Pricing & risk']
+  ['admin-settings', 'Settings']
 ];
 
-export default function AdminLayout({ page, go, children }) {
-  const { withdrawals, fleet, dirty } = usePlatform();
-  const pending = withdrawals.filter((w) => w.status === 'pending').length;
-  const down = fleet.filter((r) => !r.online).length;
+function Console({ page, go, children }) {
+  const { api, isAdmin, accountReady, live } = useApp();
+  const { data: ov } = useLoad(() => (isAdmin ? api.admin.overview() : Promise.resolve(null)), [isAdmin, page]);
 
-  const badge = { 'admin-withdrawals': pending || null, 'admin-fleet': down || null };
+  if (!accountReady) return <div className="page"><Loading /></div>;
+  if (!isAdmin) {
+    return (
+      <div className="page narrow">
+        <h1>Operators only</h1>
+        <p className="lede">Your account doesn&apos;t have access to the console.</p>
+        <button className="btn" onClick={() => go('machines')}>Back to the site</button>
+      </div>
+    );
+  }
+
+  const badge = {
+    'admin-withdrawals': ov?.pending_withdrawals || null,
+    'admin-orders': (ov?.needs_review || 0) + (ov?.refunds_due || 0) || null
+  };
 
   return (
     <div className="admin">
@@ -31,14 +47,14 @@ export default function AdminLayout({ page, go, children }) {
             </button>
           ))}
         </nav>
-        {dirty && (
-          <div className="admin-dirty">
-            Live config edited — customer pages are showing your values.
-          </div>
-        )}
+        {!live && <div className="admin-dirty">Demo mode — changes are not saved anywhere and reset on reload.</div>}
         <button className="admin-exit" onClick={() => go('machines')}>← Back to the site</button>
       </aside>
       <div className="admin-main">{children}</div>
     </div>
   );
+}
+
+export default function AdminLayout(props) {
+  return <SignInGate why="to open the console"><Console {...props} /></SignInGate>;
 }

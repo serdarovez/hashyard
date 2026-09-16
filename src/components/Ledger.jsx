@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
+import { useApp } from '../state/AppContext.jsx';
 import { hashpriceLabel, money, round } from '../lib/economics.js';
 
 export function Row({ k, v, tone }) {
@@ -17,7 +17,7 @@ export function Row({ k, v, tone }) {
  * on purpose - it encodes magnitude, not three separate identities.
  */
 export default function Ledger({ rig, e, share }) {
-  const { config } = usePlatform();
+  const { config } = useApp();
   const kwh = (rig.watts / 1000) * 24;
   return (
     <div className="stack gap-sm">

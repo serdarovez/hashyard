@@ -1,143 +1,89 @@
-import React, { useMemo } from 'react';
-import { usePlatform } from '../state/PlatformContext.jsx';
-import { byId } from '../data/catalog.js';
-import { dayEcon, econ, money, round } from '../lib/economics.js';
-import { WEEK } from '../data/account.js';
+import React from 'react';
+import { ErrorNote, Loading, fmtDate, useLoad } from '../components/ui.jsx';
+import { useApp } from '../state/AppContext.jsx';
+import { money, round } from '../lib/economics.js';
 
-/**
- * The operator's daily P&L, computed from the same functions the customer
- * pages use. Fee income and SLA liability come out of one model, so the
- * margin here can never disagree with what a customer is shown.
- */
+const yesterday = () => new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+
 export default function Overview({ go }) {
-  const { config, fleet, withdrawals, users, orders } = usePlatform();
+  const { api, config } = useApp();
+  const { data: ov, error, loading } = useLoad(() => api.admin.overview(), []);
 
-  const kpi = useMemo(() => {
-    let hash = 0, watts = 0, gross = 0, power = 0, fee = 0, credit = 0, owed = 0;
-    for (const unit of fleet) {
-      const rig = byId(unit.rigId);
-      if (!rig) continue;
-      const share = unit.owner === 'pool' ? 1 : config.splitStandard;
-      const day = dayEcon({ hp: 1, up: unit.online ? unit.uptime : 0 }, rig, share, config);
-      hash += rig.unit === 'TH/s' ? rig.hash * (unit.online ? unit.uptime : 0) : 0;
-      watts += unit.online ? rig.watts : 0;
-      gross += day.gross;
-      power += day.power;
-      owed += day.paid;
-      if (unit.owner !== 'pool') {
-        fee += day.fee;
-        credit += day.credit;
-      }
-    }
-    return { hash, watts, gross, power, fee, credit, owed, margin: fee - credit };
-  }, [fleet, config]);
+  if (loading) return <Loading />;
+  if (error) return <ErrorNote error={error} />;
 
-  const pending = withdrawals.filter((w) => w.status === 'pending');
-  const pendingValue = pending.reduce((a, b) => a + b.amount, 0);
-  const down = fleet.filter((r) => !r.online);
-
+  const behind = !ov.last_published || ov.last_published < yesterday();
   const tiles = [
-    { l: 'Fleet hashrate', v: round(kpi.hash), u: 'TH/s', s: `${fleet.filter((f) => f.online).length} of ${fleet.length} online` },
-    { l: 'Power draw', v: (kpi.watts / 1000).toFixed(1), u: 'kW', s: `${money((kpi.watts / 1000) * 24 * config.powerRate)} per day` },
-    { l: 'Mined today', v: money(kpi.gross), u: config.ticker, s: `less ${money(kpi.power)} power` },
-    { l: 'Owed to customers', v: money(kpi.owed), u: config.ticker, s: 'settles 00:07 UTC' },
-    { l: 'Fee income', v: money(kpi.fee), u: config.ticker, s: `${Math.round((1 - config.splitStandard) * 100)}% of customer net`, tone: 'ok' },
-    { l: 'SLA credits', v: money(kpi.credit), u: config.ticker, s: 'paid out of fee', tone: kpi.credit > 0 ? 'warn' : undefined },
-    { l: 'Margin today', v: money(Math.abs(kpi.margin)), u: config.ticker, s: kpi.margin < 0 ? 'LOSS' : 'fee less credits', tone: kpi.margin < 0 ? 'neg' : 'ok' },
-    { l: 'Withdrawals queued', v: pending.length, u: '', s: `${money(pendingValue)} ${config.ticker}`, tone: pending.length ? 'warn' : undefined }
+    ['Customers', ov.users, ''],
+    ['Machines earning', ov.active_holdings, ''],
+    ['Sales to date', round(Number(ov.sales_total)), config.ticker],
+    ['Owed to customers', money(Number(ov.owed_to_customers)), config.ticker],
+    ['Unpaid orders', ov.open_orders, ''],
+    ['Withdrawals to send', ov.pending_withdrawals, ov.pending_withdrawals ? `${money(Number(ov.pending_amount))} ${config.ticker}` : '']
   ];
 
   return (
     <div className="admin-page">
       <div className="page-head">
         <div>
-          <span className="eyebrow">9 September 2026</span>
+          <span className="eyebrow">Today</span>
           <h1>Overview</h1>
         </div>
-        <span className="pill run"><i className="dot" />Settlement healthy</span>
+      </div>
+
+      <div className="admin-alerts">
+        {behind && (
+          <div className="notice warn">
+            <b>Yesterday isn&apos;t published yet.</b> Customers aren&apos;t paid for a day until you enter its results
+            and publish it. Last published: {ov.last_published ? fmtDate(ov.last_published) : 'never'}.{' '}
+            <button className="linkish" onClick={() => go('admin-results')}>Enter results</button>
+          </div>
+        )}
+        {ov.pending_withdrawals > 0 && (
+          <div className="notice info">
+            <b>{ov.pending_withdrawals} withdrawal{ov.pending_withdrawals > 1 ? 's' : ''} to send</b> — {money(Number(ov.pending_amount))} {config.ticker} in total.
+            Customers were told within 24 hours.{' '}
+            <button className="linkish" onClick={() => go('admin-withdrawals')}>Open queue</button>
+          </div>
+        )}
+        {ov.refunds_due > 0 && (
+          <div className="notice warn">
+            <b>{ov.refunds_due} refund{ov.refunds_due > 1 ? 's' : ''} to send</b> — {money(Number(ov.refunds_amount))} {config.ticker} customers overpaid.
+            That money is theirs, so send it back.{' '}
+            <button className="linkish" onClick={() => go('admin-orders')}>Open refunds</button>
+          </div>
+        )}
+        {ov.needs_review > 0 && (
+          <div className="notice warn">
+            <b>{ov.needs_review} payment{ov.needs_review > 1 ? 's' : ''} need a look</b> — the amount was wrong or it arrived after the order expired.{' '}
+            <button className="linkish" onClick={() => go('admin-orders')}>Review</button>
+          </div>
+        )}
+        {!config.receiveAddress && (
+          <div className="notice warn">
+            <b>No receiving wallet set.</b> Nobody can buy until you add one.{' '}
+            <button className="linkish" onClick={() => go('admin-settings')}>Add it in Settings</button>
+          </div>
+        )}
       </div>
 
       <div className="grid tiles">
-        {tiles.map((t) => (
-          <div className="tile" key={t.l}>
-            <span className="eyebrow">{t.l}</span>
-            <span className={'tile-value' + (t.tone ? ' ' + t.tone : '')}>
-              {t.v}{t.u && <small> {t.u}</small>}
-            </span>
-            <span className="tile-sub">{t.s}</span>
+        {tiles.map(([l, v, u]) => (
+          <div className="tile" key={l}>
+            <span className="eyebrow">{l}</span>
+            <span className="tile-value">{v}</span>
+            {u && <span className="tile-sub">{u}</span>}
           </div>
         ))}
       </div>
 
-      {(down.length > 0 || pending.length > 0) && (
-        <div className="admin-alerts">
-          {down.map((r) => (
-            <div className="notice warn" key={r.sn}>
-              <b>{r.sn} is offline.</b> {byId(r.rigId)?.model} at {r.site}, {(r.uptime * 100).toFixed(1)}%
-              uptime this week — below the {Math.round(config.uptimeSLA * 100)}% floor, so it is accruing
-              SLA credits against your fee. <button className="linkish" onClick={() => go('admin-fleet')}>Open fleet</button>
-            </div>
-          ))}
-          {pending.length > 0 && (
-            <div className="notice info">
-              <b>{pending.length} withdrawal{pending.length > 1 ? 's' : ''} waiting.</b>{' '}
-              {money(pendingValue)} {config.ticker} total.{' '}
-              <button className="linkish" onClick={() => go('admin-withdrawals')}>Review queue</button>
-            </div>
-          )}
-        </div>
-      )}
-
-      <div className="split-2">
-        <section className="panel">
-          <h2>Week to date</h2>
-          <table className="table">
-            <thead>
-              <tr><th>Day</th><th className="right">Fee</th><th className="right">Credits</th><th className="right">Margin</th></tr>
-            </thead>
-            <tbody>
-              {WEEK.map((d) => {
-                const rig = byId('s21pro');
-                const paying = fleet.filter((f) => f.owner !== 'pool').length;
-                const one = dayEcon(d, rig, config.splitStandard, config);
-                const f = one.fee * paying, c = one.credit * paying, m = f - c;
-                return (
-                  <tr key={d.d}>
-                    <td>{d.d} <span className="dim small">{d.date}</span></td>
-                    <td className="right mono">{money(f)}</td>
-                    <td className={'right mono ' + (c > 0 ? 'warn' : 'dim')}>{c > 0 ? '−' + money(c) : '—'}</td>
-                    <td className={'right mono ' + (m < 0 ? 'neg' : 'ok')}>{m < 0 ? '−' : '+'}{money(Math.abs(m))}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <p className="small dim">
-            Modelled across the {fleet.filter((f) => f.owner !== 'pool').length} customer-owned units.
-            Pool-owned machines pay no fee because you already keep all of their output.
-          </p>
-        </section>
-
-        <section className="panel">
-          <h2>Recent orders</h2>
-          <table className="table">
-            <thead><tr><th>Order</th><th>Customer</th><th className="right">Value</th><th>Status</th></tr></thead>
-            <tbody>
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td className="mono small">{o.id}<span className="dim"> · {o.when}</span></td>
-                  <td>{o.user}</td>
-                  <td className="right mono">{round(o.amount)}</td>
-                  <td><span className={'pill ' + (o.status === 'filled' ? 'run' : o.status === 'cancelled' ? 'mute' : 'hot')}>{o.status}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="row">
-            <span className="eyebrow">{users.length} customers</span>
-            <button className="linkish" onClick={() => go('admin-users')}>All customers →</button>
-          </div>
-        </section>
+      <div className="panel stack gap-sm">
+        <h2>Your daily routine</h2>
+        <ol className="routine">
+          <li><b>Morning:</b> enter yesterday&apos;s profit for each machine in <b>Daily profit</b>, then <b>publish</b>. That pays everyone and sends the daily emails.</li>
+          <li><b>Withdrawals:</b> send each one from your wallet, paste the transaction ID, mark it sent.</li>
+          <li><b>Orders:</b> send back any overpayments, and check payments that arrived short.</li>
+        </ol>
       </div>
     </div>
   );
