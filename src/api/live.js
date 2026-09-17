@@ -32,17 +32,21 @@ export function createLiveApi(sb) {
       });
       return () => data.subscription.unsubscribe();
     },
-    /** Step 1 of email login: send a 6-digit code. Creates the account on first use. */
-    async sendLoginCode(email) {
-      const { error } = await sb.auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true } });
+    /**
+     * Sends the visitor to Google. Supabase brings them back to this page with
+     * ?code=, which the client swaps for a session on load. The first sign-in
+     * creates the account.
+     */
+    async signInWithGoogle() {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // no #route: Supabase appends ?code= and a hash would end up in front of it
+          redirectTo: `${window.location.origin}${window.location.pathname}`,
+          queryParams: { prompt: 'select_account' }
+        }
+      });
       if (error) throw new Error(error.message);
-    },
-    /** Step 2: exchange the code for a session. */
-    async verifyLoginCode(email, code) {
-      const { data, error } = await sb.auth.verifyOtp({ email: email.trim().toLowerCase(), token: code.trim(), type: 'email' });
-      if (error) throw new Error(error.message);
-      uid = data.session?.user?.id ?? null;
-      return data.session ? { user: data.session.user } : null;
     },
     async signOut() {
       await sb.auth.signOut();
@@ -170,6 +174,12 @@ export function createLiveApi(sb) {
       settings: async () => must(await sb.from('settings').select('*').single()),
       saveSettings: async (patch) =>
         must(await sb.from('settings').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', 1).select().single()),
+      /** A sale paid outside the site: becomes paid orders and machines, like a purchase on the site. */
+      recordSale: async ({ userId, machineId, plan, price, quantity, paidOn, note, cashback }) =>
+        must(await sb.rpc('admin_record_sale', {
+          p_user: userId, p_machine: machineId, p_plan: plan, p_price: price, p_quantity: quantity,
+          p_paid_on: paidOn, p_note: note, p_cashback: cashback
+        })),
       adjust: async (userId, amount, note) =>
         must(await sb.rpc('admin_adjust_balance', { p_user: userId, p_amount: amount, p_note: note }))
     }

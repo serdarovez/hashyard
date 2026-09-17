@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { useApp } from '../state/AppContext.jsx';
+import { rememberReturn } from '../lib/afterLogin.js';
 
 export function Loading({ label = 'Loading…' }) {
   return <div className="loading" role="status"><span className="spinner" aria-hidden="true" />{label}</div>;
@@ -60,59 +61,35 @@ export function Countdown({ until, onDone }) {
   return <span className="mono">{m}:{String(s).padStart(2, '0')}</span>;
 }
 
+const GoogleMark = () => (
+  <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true">
+    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
+    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+    <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0124 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+    <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
+  </svg>
+);
+
 /**
- * Email login in two steps: type your email, get a 6-digit code, type the code.
- * No passwords, so nothing to forget, reset or leak. The first login creates
- * the account.
+ * Sign in with Google: one button, no passwords or codes. The first sign-in
+ * creates the account. Google sends people back to the home page, so the page
+ * they were on is remembered first and AppContext returns them to it.
  */
-export function LoginForm({ title = 'Sign in', subtitle = 'Enter your email and we will send you a 6-digit code.' }) {
+export function LoginForm({ title = 'Sign in', subtitle = 'Use your Google account — there is no password to remember.' }) {
   const { api, live } = useApp();
-  const [step, setStep] = useState('email');
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const [wait, setWait] = useState(0);
 
-  useEffect(() => {
-    if (!wait) return undefined;
-    const t = setTimeout(() => setWait((n) => n - 1), 1000);
-    return () => clearTimeout(t);
-  }, [wait]);
-
-  const friendly = (err) => {
-    const m = String(err?.message || err);
-    if (/expired|invalid|otp/i.test(m)) return new Error('That code is wrong or has expired. Check the latest email, or send a new code.');
-    if (/rate|security purposes|too many/i.test(m)) return new Error('Too many attempts. Please wait a minute and try again.');
-    return err;
-  };
-
-  const send = async (e) => {
-    if (e) e.preventDefault();
+  const go = async () => {
     setError(null);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError(new Error('Enter a valid email address.')); return; }
     setBusy(true);
+    const here = window.location.hash;
+    rememberReturn(here && !/^#\/(login|signin)/.test(here) ? here : null);
     try {
-      await api.sendLoginCode(email);
-      setStep('code');
-      setCode('');
-      setWait(60);
+      await api.signInWithGoogle();
+      if (!live) setBusy(false); // the live site is on its way to Google
     } catch (err) {
-      setError(friendly(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const verify = async (e) => {
-    e.preventDefault();
-    setError(null);
-    if (!/^\d{6,8}$/.test(code.trim())) { setError(new Error('The code is the 6 digits from the email.')); return; }
-    setBusy(true);
-    try {
-      await api.verifyLoginCode(email, code);
-    } catch (err) {
-      setError(friendly(err));
+      setError(err);
       setBusy(false);
     }
   };
@@ -120,34 +97,16 @@ export function LoginForm({ title = 'Sign in', subtitle = 'Enter your email and 
   return (
     <div className="panel signin-card">
       <h1>{title}</h1>
-      {step === 'email' ? (
-        <form className="stack gap-sm login-form" onSubmit={send} noValidate>
-          <p className="lede">{subtitle}</p>
-          <label className="field-row">
-            <span className="eyebrow">Email</span>
-            <input className="input" type="email" inputMode="email" autoComplete="email" autoFocus
-              value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-          </label>
-          <button className="btn primary wide" disabled={busy}>{busy ? 'Sending…' : 'Send me a code'}</button>
-          {!live && <p className="small dim">Demo mode: use any email. The code is <b className="mono">123456</b>.</p>}
-        </form>
-      ) : (
-        <form className="stack gap-sm login-form" onSubmit={verify}>
-          <p className="lede">We sent a code to <b>{email.trim()}</b>. It can take a minute — check spam too.</p>
-          <label className="field-row">
-            <span className="eyebrow">6-digit code</span>
-            <input className="input code-input mono" inputMode="numeric" autoComplete="one-time-code" autoFocus
-              maxLength={8} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="000000" />
-          </label>
-          <button className="btn primary wide" disabled={busy}>{busy ? 'Checking…' : 'Sign in'}</button>
-          <div className="row">
-            <button type="button" className="linkish" onClick={() => { setStep('email'); setError(null); }}>Use a different email</button>
-            <button type="button" className="linkish" disabled={wait > 0 || busy} onClick={() => send()}>
-              {wait > 0 ? `Send again in ${wait}s` : 'Send a new code'}
-            </button>
-          </div>
-        </form>
-      )}
+      <p className="lede">{subtitle}</p>
+      <button type="button" className="btn wide btn-google" onClick={go} disabled={busy}>
+        <GoogleMark />
+        <span>{busy ? 'Opening Google…' : 'Continue with Google'}</span>
+      </button>
+      <p className="small dim">
+        {live
+          ? 'The first time, this creates your Hashyard account. We only receive your name and email address from Google.'
+          : 'Demo mode: this signs you straight in as the sample customer.'}
+      </p>
       <ErrorNote error={error} />
     </div>
   );

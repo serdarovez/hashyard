@@ -1,6 +1,6 @@
 # Hashyard
 
-A hosted-mining marketplace. Customers log in with their email, buy a whole mining
+A hosted-mining marketplace. Customers sign in with Google, buy a whole mining
 machine or a share of one by paying USDT (TRC-20) straight to your wallet, and
 are paid what it mined every day. You run it from an operator console.
 
@@ -34,9 +34,15 @@ blockchain; you move money by hand.
 
 ## Going live — one-time setup (about an hour)
 
-You'll need three free accounts — **Supabase**, **TronGrid** and **Resend** — plus
-a domain name, because login codes and daily emails have to come from your own
-address.
+Everything below is free for a small number of customers:
+
+| Service | What for | Free plan |
+|---|---|---|
+| **Supabase** | Database, sign-in, background jobs | Plenty for a test with a few customers. Pauses after a week with no activity; restart it from the dashboard. |
+| **Google Cloud** | "Continue with Google" | Free. While the app is in *Testing*, only the Gmail addresses you add can sign in (up to 100). |
+| **TronGrid** | Reading your wallet for payments | A scan every minute is far below the free limit. |
+| **Cloudflare Pages** or **Netlify** | Hosting the website | Free, and allowed for a business. (Vercel's free plan is for non-commercial use.) |
+| **Resend** + a domain *(optional)* | The daily earnings email | 100 emails a day free; a domain is about $10 a year. Skip it for now — customers see everything on their dashboard. |
 
 ### 1. Supabase — database, login and background jobs
 
@@ -55,66 +61,70 @@ address.
 
    That creates every table, security rule and function from `supabase/migrations/`.
 
-### 2. Resend — the email sender
+### 2. Google — sign-in
 
-1. [resend.com](https://resend.com) → **Domains → Add domain** → add the DNS
-   records they show you at your domain registrar → wait until it says *Verified*.
-2. **API Keys → Create** → copy the key (starts with `re_`).
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) → create a project called `Hashyard`.
+2. **Google Auth Platform → Get started** (older consoles: *APIs & Services → OAuth consent screen*):
+   - App name `Hashyard`, your email as support email
+   - Audience: **External**
+   - Contact email: yours → **Create**
+3. **Audience → Test users → Add users**: the Gmail addresses of everyone who
+   should be able to sign in (you, and your testers). While *Publishing status*
+   is **Testing**, nobody else can. Publish the app later to open sign-up to
+   everyone — with only name and email requested, Google does not need to review it.
+4. **Clients → Create client** → type **Web application**:
+   - Authorized JavaScript origins: your site, e.g. `https://hashyard.pages.dev`,
+     and `http://localhost:5173` for testing on your computer
+   - Authorized redirect URIs: `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback`
+   - **Create**, then copy the **Client ID** and **Client secret**.
+5. Supabase → **Authentication → Sign In / Providers → Google** → turn it on,
+   paste the Client ID and Client secret → **Save**.
+6. Same page → **Email** → turn it **off**, so Google is the only way to sign in.
+7. Supabase → **Authentication → URL Configuration**:
+   - **Site URL**: your live site, e.g. `https://hashyard.pages.dev`
+   - **Redirect URLs**: add `https://hashyard.pages.dev/**` and `http://localhost:5173/**`
 
-### 3. Email login (6-digit codes, no passwords)
+> The Client secret goes only into Supabase. Never put it in the website or in git.
 
-1. Supabase → **Authentication → Sign In / Providers → Email**: make sure it is **enabled**.
-2. Supabase → **Project Settings → Authentication → SMTP Settings** → turn on
-   custom SMTP. Without this, Supabase only sends a few emails per hour and
-   customers won't receive their codes.
-   - Host `smtp.resend.com` · Port `465` · Username `resend`
-   - Password: your Resend API key
-   - Sender email: e.g. `login@yourdomain.com` · Sender name: `Hashyard`
-3. Supabase → **Authentication → Email Templates**. Open **Magic Link** *and*
-   **Confirm signup**, and replace each body with:
-   ```html
-   <h2>Your Hashyard login code</h2>
-   <p style="font-size:32px;letter-spacing:6px"><b>{{ .Token }}</b></p>
-   <p>It expires in one hour. If you didn't try to log in, ignore this email.</p>
-   ```
-   Both are needed: the first login of a new customer uses *Confirm signup*.
-4. Supabase → **Authentication → Rate Limits**: raise *emails sent per hour*
-   (e.g. to 100) now that your own SMTP is doing the sending.
-5. Supabase → **Authentication → URL Configuration** → **Site URL**: your live
-   site, e.g. `https://hashyard.vercel.app`.
-
-### 3b. TronGrid — reading your wallet
+### 3. TronGrid — reading your wallet
 
 1. [trongrid.io](https://www.trongrid.io) → sign up → create an **API key**.
 
-### 4. Deploy the two background functions
+### 4. Deploy the payment scanner
 
 Make up a long random password for `CRON_SECRET` (e.g. from a password
 manager). Then:
 
 ```bash
-npx supabase secrets set TRONGRID_API_KEY=your-trongrid-key RESEND_API_KEY=your-resend-key CRON_SECRET=your-random-password EMAIL_FROM="Hashyard <updates@yourdomain.com>" SITE_URL=https://hashyard.vercel.app
+npx supabase secrets set TRONGRID_API_KEY=your-trongrid-key CRON_SECRET=your-random-password
 npx supabase functions deploy payments
-npx supabase functions deploy daily-email
 ```
 
-Then in Supabase → **SQL Editor**, run once (same values):
+Then in Supabase → **SQL Editor**, run once (same password):
 
 ```sql
 select vault.create_secret('https://YOUR-PROJECT-REF.supabase.co', 'project_url');
 select vault.create_secret('your-random-password', 'cron_secret');
 ```
 
-The scheduled jobs (payment scan every minute, emails at 09:00 UTC) start
-working as soon as these exist.
+The payment scan (every minute) starts working as soon as these exist.
+
+**Later, for daily emails** (needs a domain): at [resend.com](https://resend.com)
+add and verify your domain, create an API key, then:
+
+```bash
+npx supabase secrets set RESEND_API_KEY=your-resend-key EMAIL_FROM="Hashyard <updates@yourdomain.com>" SITE_URL=https://hashyard.pages.dev
+npx supabase functions deploy daily-email
+```
 
 ### 5. Connect the website
 
 Locally: copy `.env.example` to `.env.local` and fill in the two values.
 
-On **Vercel**: Project → **Settings → Environment Variables** → add
-`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` → **Redeploy**. The demo
-banner disappears once they're set.
+On **Cloudflare Pages** (or Netlify): connect the GitHub repository, build
+command `npm run build`, output folder `dist`, and add the environment
+variables `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Redeploy after
+adding them. The demo banner disappears once they're set.
 
 > The anon/publishable key is safe to put in the website — it only allows what
 > the security rules permit. **Never** put the service role / secret key in the
@@ -122,16 +132,31 @@ banner disappears once they're set.
 
 ### 6. Make yourself the operator
 
-1. Open your live site and **log in with your email** once.
-2. Supabase → SQL Editor (use the email you logged in with):
+1. Open your live site and **sign in with Google** once.
+2. Supabase → SQL Editor (use the Gmail address you signed in with):
    ```sql
-   update profiles set role = 'admin' where email = 'you@yourdomain.com';
+   update profiles set role = 'admin' where email = 'you@gmail.com';
    ```
 3. Reload the site → account menu → **Operator console** → **Settings** →
    enter **your receiving wallet** (your TRON address) and save. Until you do,
    nobody can buy.
 
-### 7. Test with real money, small
+### 7. Add customers who already paid you
+
+For people who bought before the site existed, or paid in cash or by bank:
+
+1. Ask them to open the site and **sign in with Google** once (add their Gmail
+   as a test user first — step 2.3).
+2. Console → **Customers** → their row → **Record a sale**: the machine, plan,
+   price they actually paid for one, how many, the date they paid, and how
+   they paid.
+
+Each machine becomes theirs exactly as if bought on the site: it counts as
+*bought* on the leaderboard and starts earning the day after the payment date.
+Earnings only come from the daily profit you publish, so nothing is paid for
+days before you start publishing. Every recorded sale is in the audit log.
+
+### 8. Test with real money, small
 
 1. Console → **Machines → Add a machine**: a test machine priced `2` USDT, stock 1.
 2. Buy it from a normal account and send the exact amount shown.
@@ -164,7 +189,7 @@ banner disappears once they're set.
 ## Checking it works
 
 ```bash
-npm run test:db         # 116 checks: purchases, refunds, payouts, guarantee, referrals,
+npm run test:db         # 133 checks: purchases, recorded sales, refunds, payouts, guarantee, referrals,
                         #             withdrawals, leaderboard, and every security rule
 npm run test:payments   # 21 checks: matching transfers to orders, fake-token and claim-theft protection
 npm run check           # every source file parses and every import resolves
@@ -211,10 +236,12 @@ aliases and rounded totals — never an id, an email or a balance.
 - **Payment not confirming** — check Supabase → Edge Functions → `payments` → Logs. Most often the
   TronGrid key or the `project_url` vault secret is missing. Customers can always paste their
   transaction ID, and you can confirm by hand in Orders.
-- **Login code never arrives** — custom SMTP is not set up (step 3.2), your Resend domain isn't
-  verified, or the email went to spam. Supabase → Authentication → Logs shows each attempt.
-- **The email has a link instead of a code** — the email templates still use the default text.
-  Put `{{ .Token }}` in both *Magic Link* and *Confirm signup* (step 3.3).
+- **"Access blocked: Hashyard has not completed the Google verification process"** — that Gmail
+  address is not on the test-user list (step 2.3). Add it, or publish the app.
+- **"redirect_uri_mismatch" from Google** — the redirect URI in Google must be exactly
+  `https://YOUR-PROJECT-REF.supabase.co/auth/v1/callback` (step 2.4).
+- **Signed in with Google but landed back signed out** — your site's address is missing from
+  Supabase → Authentication → URL Configuration → Redirect URLs (step 2.7).
 - **No daily email** — the day must be *published*, `RESEND_API_KEY` and a verified domain must be
   set, and the customer must have emails turned on (Wallet page).
 

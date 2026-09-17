@@ -273,13 +273,9 @@ export function createDemoApi() {
 
     async getSession() { await tick(); return session; },
     onAuthChange(cb) { authListeners.add(cb); return () => authListeners.delete(cb); },
-    // demo login: any email, and the code is always 123456
-    async sendLoginCode(email) {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim())) fail('Enter a valid email address.');
+    // demo login: no trip to Google, it signs straight in as the sample customer
+    async signInWithGoogle() {
       await tick();
-    },
-    async verifyLoginCode(email, code) {
-      if (String(code).trim() !== '123456') fail('That code is not right. In demo mode the code is 123456.');
       session = { user: { id: me.id, email: me.email } };
       store.set('hy-demo-signed-out', null);
       authListeners.forEach((f) => f(session));
@@ -570,6 +566,41 @@ export function createDemoApi() {
         if (patch.receive_address && !TRON_ADDRESS.test(patch.receive_address)) fail('the receiving wallet is not a valid TRON address');
         Object.assign(S, patch);
         return { ...S };
+      },
+      // mirror of public.admin_record_sale
+      async recordSale({ userId, machineId, plan, price, quantity, paidOn, note, cashback }) {
+        requireAdmin();
+        if (!people.some((p) => p.id === userId)) fail('customer not found');
+        const m = machine(machineId);
+        if (!m) fail('machine not found');
+        if (!['standard', 'pro'].includes(plan)) fail('plan must be standard or pro');
+        const each = Number(price), n = Number(quantity);
+        if (!(each > 0)) fail('enter the price that was paid for one machine');
+        if (!Number.isInteger(n) || n < 1 || n > 100) fail('quantity must be 1 to 100');
+        if (!paidOn || paidOn > todayUTC()) fail('the payment date cannot be in the future');
+        if (String(note || '').trim().length < 3) fail('write down how it was paid (e.g. cash on 12 July, or the transaction ID)');
+        if (m.stock < n) fail(`only ${m.stock} in stock - raise the stock in Machines first`);
+        const at = paidOn === todayUTC() ? new Date().toISOString() : `${paidOn}T12:00:00.000Z`;
+        const split = plan === 'pro' ? S.split_pro : S.split_standard;
+        const first = !orders.some((o) => o.user_id === userId && o.status === 'paid');
+        const ids = [];
+        for (let i = 0; i < n; i++) {
+          const o = { id: id(), user_id: userId, machine_id: m.id, plan, split, price: r6(each), pay_amount: r6(each),
+            pay_address: S.receive_address, status: 'paid', tx_hash: null, paid_amount: r6(each), paid_at: at,
+            created_at: at, expires_at: at, recorded_note: String(note).trim() };
+          orders.push(o);
+          holdings.push({ id: id(), user_id: userId, machine_id: m.id, order_id: o.id, split,
+            started_on: addDays(at.slice(0, 10), 1), active: true, created_at: at });
+          ids.push(o.id);
+        }
+        m.stock -= n;
+        let cashbackPaid = 0;
+        if (cashback && first && S.cashback_rate > 0 && !ledger.some((l) => l.user_id === userId && l.kind === 'cashback')) {
+          cashbackPaid = r6(Math.min(each * S.cashback_rate, S.cashback_cap));
+          addLedger({ user_id: userId, kind: 'cashback', amount: cashbackPaid, order_id: ids[0], note: 'first-purchase cashback', created_at: at });
+        }
+        emit();
+        return { orders: n, total: r6(each * n), cashback: cashbackPaid, starts_on: addDays(at.slice(0, 10), 1) };
       },
       async adjust(userId, amount, note) {
         requireAdmin();

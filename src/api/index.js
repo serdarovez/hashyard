@@ -4,7 +4,7 @@ import { createDemoApi } from './demo.js';
 
 /**
  * Picks the backend. With VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY set
- * (in .env locally, or in Vercel's environment variables) the site talks to
+ * (in .env.local, or in your host's environment variables) the site talks to
  * Supabase. Without them it runs the in-memory demo, so a fresh clone or a
  * preview deploy still works.
  *

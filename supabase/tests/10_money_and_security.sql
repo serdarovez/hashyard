@@ -429,4 +429,53 @@ select test.fails($q$select * from admin_machine_stats()$q$, '42501', 'nor can a
 reset role;
 
 \echo
+\echo '== sales paid outside the site =='
+\set DANA  '00000000-0000-0000-0000-000000000009'
+insert into auth.users (id, email, raw_user_meta_data) values (:'DANA', 'dana@example.com', '{"full_name":"Dana"}');
+select stock as s21e_before from machines where id = 's21e3u' \gset
+select (current_date - 20) as paid_day \gset
+
+set role authenticated; select test.as_user(:'ALICE');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 17900, 1, %L::date, %L)', :'DANA', 's21e3u', 'standard', :'paid_day', 'cash'),
+                  '42501', 'a customer cannot record a sale');
+reset role;
+
+set role authenticated; select test.as_user(:'ADMIN');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 17900, 1, %L::date, %L)', :'DANA', 's21e3u', 'standard', current_date + 1, 'cash in hand'),
+                  null, 'a payment date in the future is refused');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 17900, 1, %L::date, %L)', :'DANA', 's21e3u', 'standard', :'paid_day', ' '),
+                  null, 'a sale without a note on how it was paid is refused');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 0, 1, %L::date, %L)', :'DANA', 's21e3u', 'standard', :'paid_day', 'cash in hand'),
+                  null, 'a zero price is refused');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 17900, 1, %L::date, %L)', :'DANA', 'no-such-rig', 'standard', :'paid_day', 'cash in hand'),
+                  null, 'an unknown machine is refused');
+select test.fails(format('select admin_record_sale(%L::uuid, %L, %L, 17900, 99, %L::date, %L)', :'DANA', 's21e3u', 'standard', :'paid_day', 'cash in hand'),
+                  null, 'more than the stock is refused');
+
+select admin_record_sale(:'DANA', 's21e3u', 'standard', 17900, 2, :'paid_day', 'Cash, handed over in the office', true) as rec \gset
+reset role;
+select test.ok((:'rec'::jsonb ->> 'orders')::int = 2, 'two machines are recorded in one go');
+select test.ok((select count(*) from orders where user_id = :'DANA' and status = 'paid' and recorded_note is not null) = 2,
+               'as paid orders marked as recorded by hand');
+select test.near((select sum(price) from orders where user_id = :'DANA' and status = 'paid'), 35800, 'they count as bought');
+select test.ok((select count(*) from holdings where user_id = :'DANA' and started_on = :'paid_day'::date + 1) = 2,
+               'each machine earns from the day after the payment date');
+select test.ok((select stock from machines where id = 's21e3u') = :s21e_before - 2, 'the stock goes down');
+select test.near((select sum(amount) from ledger where user_id = :'DANA' and kind = 'cashback'), 250,
+                 'first-purchase cashback when ticked (10% capped at 250)');
+select test.ok((select count(*) from ledger where user_id = :'DANA' and kind = 'earning') = 0,
+               'recording a sale pays no earnings by itself');
+select test.ok(exists (select 1 from audit_log where action = 'order.recorded'), 'recorded sales are in the audit log');
+
+set role authenticated; select test.as_user(:'ADMIN');
+select admin_record_sale(:'DANA', 's19kpro', 'pro', 1654, 1, current_date, 'TRON transfer from their exchange', true) as rec2 \gset
+reset role;
+select test.near((select sum(amount) from ledger where user_id = :'DANA' and kind = 'cashback'), 250,
+                 'a second recorded sale gets no second cashback');
+select test.ok((select split from orders where user_id = :'DANA' and machine_id = 's19kpro') = 0.90, 'the Pro plan keeps the Pro split');
+select test.ok((select started_on from holdings h join orders o on o.id = h.order_id
+                 where o.user_id = :'DANA' and o.machine_id = 's19kpro') = (now() at time zone 'utc')::date + 1,
+               'a sale recorded for today starts tomorrow');
+
+\echo
 \echo 'ALL TESTS PASSED'

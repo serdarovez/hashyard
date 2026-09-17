@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api, LIVE } from '../api/index.js';
 import { CONFIG } from '../data/config.js';
+import { rememberReturn, takeReturn } from '../lib/afterLogin.js';
 
 /**
  * Everything the pages share: the catalogue and terms (public), and - once
@@ -53,7 +54,18 @@ export function AppProvider({ children }) {
   // boot: public data, then whoever is signed in
   useEffect(() => {
     loadCatalog();
-    api.getSession().then((s) => { setSession(s); setAuthReady(true); });
+    api.getSession().then((s) => {
+      setSession(s);
+      setAuthReady(true);
+      // back from Google without signing in: cancelled, or not on the tester list yet
+      const url = new URL(window.location.href);
+      const why = url.searchParams.get('error_description');
+      if (why || url.searchParams.get('error')) {
+        setError(`Google sign-in did not finish${why ? `: ${why}` : ''}. Please try again.`);
+        ['error', 'error_code', 'error_description'].forEach((k) => url.searchParams.delete(k));
+        window.history.replaceState(window.history.state, '', url.toString());
+      }
+    });
     const off = api.onAuthChange((s) => setSession(s));
 
     // a ?ref=CODE link is remembered until the visitor signs in
@@ -71,12 +83,9 @@ export function AppProvider({ children }) {
     const ref = safe(() => localStorage.getItem('hy-ref'));
     if (ref) api.setReferrer(ref).catch(() => {}).finally(() => safe(() => localStorage.removeItem('hy-ref')));
 
-    // signed in from the login page: go back to where they were, or the dashboard
-    if (/^#\/(login|signin)/.test(window.location.hash)) {
-      const back = safe(() => sessionStorage.getItem('hy-after-login'));
-      safe(() => sessionStorage.removeItem('hy-after-login'));
-      window.location.hash = back || '#/dashboard';
-    }
+    // just signed in: back to the page they were on (remembered before going to Google)
+    const back = takeReturn();
+    if (back || /^#\/(login|signin)/.test(window.location.hash)) window.location.hash = back || '#/dashboard';
 
     let timer;
     const off = api.watchAccount(() => { clearTimeout(timer); timer = setTimeout(loadAccount, 250); });
@@ -85,7 +94,7 @@ export function AppProvider({ children }) {
 
   // opens the login page, remembering where to come back to
   const signIn = useCallback((returnTo) => {
-    if (returnTo && !/^#\/login/.test(returnTo)) safe(() => sessionStorage.setItem('hy-after-login', returnTo));
+    if (returnTo && !/^#\/(login|signin)/.test(returnTo)) rememberReturn(returnTo);
     window.location.hash = '#/login';
   }, []);
 

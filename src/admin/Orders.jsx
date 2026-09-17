@@ -141,7 +141,10 @@ export default function Orders() {
                     <tr>
                       <td className="small">{fmtDateTime(o.created_at)}</td>
                       <td className="small">{o.profiles?.email}</td>
-                      <td className="small">{o.machines?.model} <span className="dim">· {o.plan}</span></td>
+                      <td className="small">
+                        {o.machines?.model} <span className="dim">· {o.plan}</span>
+                        {o.recorded_note && <div className="dim">Recorded by hand: {o.recorded_note}</div>}
+                      </td>
                       <td className="right mono">{money(Number(o.pay_amount))}</td>
                       <td className="right mono">{o.paid_amount ? money(Number(o.paid_amount)) : '—'}</td>
                       <td>

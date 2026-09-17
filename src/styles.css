@@ -715,8 +715,9 @@ code { font-family: var(--f-mono); font-size: 12px; background: var(--panel-2); 
 }
 
 /* ---------- login ---------- */
-.login-form { width: 100%; max-width: 380px; }
-.code-input { font-size: 26px; letter-spacing: .35em; text-align: center; height: 56px; }
+.btn-google { max-width: 380px; gap: 10px; background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.btn-google:hover:not(:disabled) { border-color: var(--ink-3); }
+.btn-google svg { flex: none; }
 .linkish:disabled { color: var(--ink-3); text-decoration: none; cursor: default; }
 
 /* ---------- referrals ---------- */
