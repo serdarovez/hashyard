@@ -94,13 +94,6 @@ function Site() {
         </div>
       )}
       <main className="shell"><PageBoundary key={route.page + (route.param || '')}>{view}</PageBoundary></main>
-      <footer className="site-footer">
-        <div className="shell footer-inner">
-          <span>Hashyard — hosted mining, paid in {config.ticker}.</span>
-          <span>Earnings change with the bitcoin price and are not guaranteed. Hardware loses value over time.</span>
-          <button className="linkish" onClick={() => go('admin')}>Operator console →</button>
-        </div>
-      </footer>
       <MobileNav page={route.page} go={go} />
     </>
   );

@@ -73,7 +73,7 @@ export default function Machines({ go }) {
           ? 'A share is part of a machine that is already running — same hardware, same electricity price, same plan.'
           : filter === 'unit'
             ? 'A whole machine, running under your name.'
-            : `Earnings shown are estimates at today's prices. Real payouts come from what each machine actually mined, and change with the bitcoin price.`}
+            : `Earnings shown are estimates at today's prices, not a promise. You are paid what your machine actually mines each day, which moves with the bitcoin price, and mining hardware loses value over time.`}
       </p>
 
       {!catalogReady ? (

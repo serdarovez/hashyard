@@ -78,6 +78,11 @@ function CheckoutInner({ id, split, setSplit, go }) {
         soon as the payment confirms, usually within a minute or two.
       </div>
 
+      <p className="small dim">
+        The figures above are estimates, not a promise. You are paid what this machine actually mines each day, less its
+        electricity, so earnings move with the bitcoin price and mining hardware loses value over time.
+      </p>
+
       <ErrorNote error={error} />
       <button className="btn primary wide" onClick={pay} disabled={busy || rig.stock < 1}>
         {rig.stock < 1 ? 'Sold out' : busy ? 'Creating your order…' : `Continue to payment — ${round(price)} ${config.ticker}`}

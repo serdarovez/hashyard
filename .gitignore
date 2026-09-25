@@ -22,3 +22,6 @@ _css.py
 # Supabase CLI working files
 supabase/.temp/
 supabase/.branches/
+
+# generated: the migrations joined into one file for the Supabase SQL editor
+supabase/paste-in-sql-editor.sql
